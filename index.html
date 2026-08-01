@@ -76,6 +76,13 @@ p { line-height:1.5; }
 .quest-title-row { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
 .reward { flex:none; color:var(--gold); font-size:.72rem; font-weight:800; white-space:nowrap; }
 .quest-card p { margin:8px 0 14px; color:var(--muted); font-size:.88rem; }
+.timer-card { border-color:rgba(125,211,252,.42); background:linear-gradient(145deg,rgba(20,47,67,.96),rgba(14,21,34,.96)); }
+.timer-card.running { border-color:rgba(74,222,128,.52); box-shadow:0 18px 45px rgba(0,0,0,.28),0 0 0 1px rgba(74,222,128,.08); }
+.timer-display { margin:2px 0 5px; font-size:clamp(2.5rem,12vw,4rem); font-weight:850; letter-spacing:-.055em; line-height:1; font-variant-numeric:tabular-nums; }
+.timer-hint { min-height:1.3em; margin:0 0 14px!important; color:var(--accent)!important; font-weight:750; }
+.timer-card.running .timer-hint { color:var(--green)!important; }
+.timer-actions { display:grid; grid-template-columns:1fr auto; gap:9px; }
+.primary.stop-button { background:linear-gradient(135deg,var(--green),#22c55e); color:#04140a; }
 .primary,.secondary,.danger,.file-label { min-height:44px; padding:11px 15px; border-radius:12px; font-weight:800; text-align:center; transition:transform .1s ease,opacity .1s ease; }
 .primary:active,.secondary:active,.danger:active,.file-label:active { transform:scale(.98); }
 .primary { background:linear-gradient(135deg,var(--accent-strong),#60a5fa); color:#06111b; }
@@ -117,6 +124,7 @@ dialog::backdrop { background:rgba(0,0,0,.7); }
   .reward{display:inline-block;margin-top:5px}
   .trophy-grid{grid-template-columns:1fr}
   .quest-card{padding:14px}
+  .timer-actions{grid-template-columns:1fr}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
 </style>
@@ -152,6 +160,19 @@ dialog::backdrop { background:rgba(0,0,0,.7); }
       <section>
         <div class="section-heading outside-heading"><div><p class="eyebrow">TODAY'S QUESTS</p><h2 id="todayLabel">Today</h2></div></div>
         <div class="quest-stack">
+          <article id="timerCard" class="quest-card timer-card panel">
+            <div class="quest-icon" aria-hidden="true">&#9654;</div>
+            <div class="quest-body">
+              <div class="quest-title-row"><h3>Walk Timer</h3><span class="reward">Automatic rewards</span></div>
+              <p id="timerStatus">Start the timer, take your walk, then stop it when you return. It keeps running if you lock your screen or close the app.</p>
+              <div id="timerDisplay" class="timer-display" role="timer" aria-live="off">00:00</div>
+              <p id="timerHint" class="timer-hint">First full 5 minutes today earns +10 XP and +10 coins.</p>
+              <div class="timer-actions">
+                <button id="timerBtn" class="primary" type="button">Start walk</button>
+                <button id="discardWalkBtn" class="danger hidden" type="button">Discard</button>
+              </div>
+            </div>
+          </article>
           <article class="quest-card panel">
             <div class="quest-icon">5</div>
             <div class="quest-body">
@@ -199,7 +220,7 @@ dialog::backdrop { background:rgba(0,0,0,.7); }
         </div>
       </section>
     </main>
-    <footer><p>No streak penalties. No missed-day damage. Total progress never expires. <span class="build">Build 2.0</span></p></footer>
+    <footer><p>No streak penalties. No missed-day damage. Total progress never expires. <span class="build">Build 3.0</span></p></footer>
   </div>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
@@ -219,7 +240,8 @@ dialog::backdrop { background:rgba(0,0,0,.7); }
 
   const STORAGE_KEY = "questlog-fitness-v1";
   const XP_PER_LEVEL = 100;
-  const BUILD = "2.0.0";
+  const WALK_BLOCK_MS = 5 * 60 * 1000;
+  const BUILD = "3.0.0";
 
   const QUESTS = {
     walk: { title: "Minimum Movement", xp: 10, coins: 10, minutes: 5 },
@@ -245,13 +267,15 @@ dialog::backdrop { background:rgba(0,0,0,.7); }
 
   const defaultState = () => ({
     version:1, xp:0, coins:0, logs:[], unlocked:[],
-    totals:{ walks:0, bonusWalks:0, strength:0, walkMinutes:0 }
+    totals:{ walks:0, bonusWalks:0, strength:0, walkMinutes:0 },
+    activeWalk:null
   });
 
   const $ = id => document.getElementById(id);
   let state = loadState();
   let deferredInstallPrompt = null;
   let toastTimer = null;
+  let walkTimerInterval = null;
 
   function localDateKey(date = new Date()) {
     const y=date.getFullYear();
@@ -290,7 +314,10 @@ dialog::backdrop { background:rgba(0,0,0,.7); }
         ...base, ...parsed,
         totals:{...base.totals,...(parsed.totals||{})},
         logs:Array.isArray(parsed.logs)?parsed.logs:[],
-        unlocked:Array.isArray(parsed.unlocked)?parsed.unlocked:[]
+        unlocked:Array.isArray(parsed.unlocked)?parsed.unlocked:[],
+        activeWalk:parsed.activeWalk && Number.isFinite(new Date(parsed.activeWalk.startedAt).getTime())
+          ? {startedAt:parsed.activeWalk.startedAt}
+          : null
       };
     } catch(error) {
       console.error("QuestLog storage load failed", error);
@@ -310,9 +337,25 @@ dialog::backdrop { background:rgba(0,0,0,.7); }
     return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
   }
 
+  function minimumWalkCredits(log) {
+    if(log.minimumWalkCredits!==undefined) {
+      const credits=Number(log.minimumWalkCredits);
+      return Number.isFinite(credits) ? Math.max(0,Math.floor(credits)) : 0;
+    }
+    return log.type==="walk" ? 1 : 0;
+  }
+
+  function bonusWalkCredits(log) {
+    if(log.bonusWalkCredits!==undefined) {
+      const credits=Number(log.bonusWalkCredits);
+      return Number.isFinite(credits) ? Math.max(0,Math.floor(credits)) : 0;
+    }
+    return log.type==="bonus" ? 1 : 0;
+  }
+
   function hasCompletedWalkToday() {
     const today=localDateKey();
-    return state.logs.some(log=>log.type==="walk" && log.dateKey===today);
+    return state.logs.some(log=>minimumWalkCredits(log)>0 && log.dateKey===today);
   }
 
   function hasCompletedStrengthThisWeek() {
@@ -345,14 +388,16 @@ dialog::backdrop { background:rgba(0,0,0,.7); }
 
     const log={
       id:makeId(), type, title:quest.title, xp:quest.xp, coins:quest.coins,
-      minutes:quest.minutes, dateKey:localDateKey(), timestamp:new Date().toISOString()
+      minutes:quest.minutes, dateKey:localDateKey(), timestamp:new Date().toISOString(),
+      minimumWalkCredits:type==="walk" ? 1 : 0,
+      bonusWalkCredits:type==="bonus" ? 1 : 0
     };
 
     state.logs.unshift(log);
     state.xp+=quest.xp;
     state.coins+=quest.coins;
-    if(type==="walk") state.totals.walks+=1;
-    if(type==="bonus") state.totals.bonusWalks+=1;
+    state.totals.walks+=minimumWalkCredits(log);
+    state.totals.bonusWalks+=bonusWalkCredits(log);
     if(type==="strength") state.totals.strength+=1;
     state.totals.walkMinutes+=quest.minutes;
 
@@ -365,14 +410,76 @@ dialog::backdrop { background:rgba(0,0,0,.7); }
     if("vibrate" in navigator) navigator.vibrate([35,25,55]);
   }
 
+  function startWalk() {
+    if(state.activeWalk) return;
+    state.activeWalk={startedAt:new Date().toISOString()};
+    saveState();
+    renderWalkTimer();
+    syncWalkTimerInterval();
+    showToast("Walk timer started. You can lock your screen or close the app.");
+    if("vibrate" in navigator) navigator.vibrate(35);
+  }
+
+  function stopWalk() {
+    if(!state.activeWalk) return;
+
+    const endedAt=new Date();
+    const startedAt=new Date(state.activeWalk.startedAt);
+    const durationMs=Math.max(0,endedAt.getTime()-startedAt.getTime());
+    const minutes=Math.floor(durationMs/60000);
+    const rewardBlocks=Math.floor(durationMs/WALK_BLOCK_MS);
+    const firstBlock=rewardBlocks>0 && !hasCompletedWalkToday() ? 1 : 0;
+    const bonusBlocks=Math.max(0,rewardBlocks-firstBlock);
+    const xp=firstBlock*QUESTS.walk.xp+bonusBlocks*QUESTS.bonus.xp;
+    const coins=firstBlock*QUESTS.walk.coins+bonusBlocks*QUESTS.bonus.coins;
+
+    const log={
+      id:makeId(), type:"timedWalk", title:"Timed Walk", xp, coins, minutes,
+      durationSeconds:Math.floor(durationMs/1000),
+      minimumWalkCredits:firstBlock, bonusWalkCredits:bonusBlocks,
+      startedAt:startedAt.toISOString(), endedAt:endedAt.toISOString(),
+      dateKey:localDateKey(endedAt), timestamp:endedAt.toISOString()
+    };
+
+    state.activeWalk=null;
+    state.logs.unshift(log);
+    state.xp+=xp;
+    state.coins+=coins;
+    state.totals.walks+=firstBlock;
+    state.totals.bonusWalks+=bonusBlocks;
+    state.totals.walkMinutes+=minutes;
+
+    const newTrophies=updateTrophies();
+    saveState();
+    syncWalkTimerInterval();
+    render();
+
+    const durationMessage=minutes===0 ? "Timed walk recorded: less than one minute."
+      : `${minutes}-minute timed walk recorded.`;
+    const rewardMessage=xp>0 ? ` +${xp} XP, +${coins} coins.`
+      : " No full five-minute reward block yet.";
+    const trophyMessage=newTrophies.length ? ` Trophy unlocked: ${newTrophies.join(", ")}.` : "";
+    showToast(`${durationMessage}${rewardMessage}${trophyMessage}`);
+    if("vibrate" in navigator) navigator.vibrate([35,25,55]);
+  }
+
+  function discardWalk() {
+    if(!state.activeWalk) return;
+    state.activeWalk=null;
+    saveState();
+    syncWalkTimerInterval();
+    renderWalkTimer();
+    showToast("Walk timer discarded. No minutes or rewards were added.");
+  }
+
   function undoLog(id) {
     const index=state.logs.findIndex(log=>log.id===id);
     if(index<0) return;
     const [log]=state.logs.splice(index,1);
     state.xp=Math.max(0,state.xp-log.xp);
     state.coins=Math.max(0,state.coins-log.coins);
-    if(log.type==="walk") state.totals.walks=Math.max(0,state.totals.walks-1);
-    if(log.type==="bonus") state.totals.bonusWalks=Math.max(0,state.totals.bonusWalks-1);
+    state.totals.walks=Math.max(0,state.totals.walks-minimumWalkCredits(log));
+    state.totals.bonusWalks=Math.max(0,state.totals.bonusWalks-bonusWalkCredits(log));
     if(log.type==="strength") state.totals.strength=Math.max(0,state.totals.strength-1);
     state.totals.walkMinutes=Math.max(0,state.totals.walkMinutes-(log.minutes||0));
     state.unlocked=TROPHIES.filter(trophy=>trophy.test(state)).map(trophy=>trophy.id);
@@ -384,10 +491,63 @@ dialog::backdrop { background:rgba(0,0,0,.7); }
   function weeklyStats() {
     const logs=state.logs.filter(log=>isThisWeek(log.timestamp));
     return {
-      walks:logs.filter(log=>log.type==="walk").length,
+      walks:logs.reduce((sum,log)=>sum+minimumWalkCredits(log),0),
       strength:logs.filter(log=>log.type==="strength").length,
       minutes:logs.reduce((sum,log)=>sum+(log.minutes||0),0)
     };
+  }
+
+  function formatElapsed(milliseconds) {
+    const totalSeconds=Math.max(0,Math.floor(milliseconds/1000));
+    const hours=Math.floor(totalSeconds/3600);
+    const minutes=Math.floor((totalSeconds%3600)/60);
+    const seconds=totalSeconds%60;
+    const pad=value=>String(value).padStart(2,"0");
+    return hours>0 ? `${pad(hours)}:${pad(minutes)}:${pad(seconds)}` : `${pad(minutes)}:${pad(seconds)}`;
+  }
+
+  function renderWalkTimer() {
+    const active=state.activeWalk;
+    const card=$("timerCard");
+    const button=$("timerBtn");
+    const discard=$("discardWalkBtn");
+
+    if(!active) {
+      card.classList.remove("running");
+      $("timerDisplay").textContent="00:00";
+      $("timerStatus").textContent="Start the timer, take your walk, then stop it when you return. It keeps running if you lock your screen or close the app.";
+      $("timerHint").textContent=hasCompletedWalkToday()
+        ? "Each full 5-minute block now earns +5 XP and +5 coins."
+        : "First full 5 minutes today earns +10 XP and +10 coins.";
+      button.textContent="Start walk";
+      button.classList.remove("stop-button");
+      discard.classList.add("hidden");
+      return;
+    }
+
+    const startedAt=new Date(active.startedAt);
+    const elapsedMs=Math.max(0,Date.now()-startedAt.getTime());
+    const blocks=Math.floor(elapsedMs/WALK_BLOCK_MS);
+    const firstBlock=blocks>0 && !hasCompletedWalkToday() ? 1 : 0;
+    const bonusBlocks=Math.max(0,blocks-firstBlock);
+    const xp=firstBlock*QUESTS.walk.xp+bonusBlocks*QUESTS.bonus.xp;
+    const coins=firstBlock*QUESTS.walk.coins+bonusBlocks*QUESTS.bonus.coins;
+
+    card.classList.add("running");
+    $("timerDisplay").textContent=formatElapsed(elapsedMs);
+    $("timerStatus").textContent=`Started ${new Intl.DateTimeFormat(undefined,{hour:"numeric",minute:"2-digit"}).format(startedAt)}. The start time is safely saved on this device.`;
+    $("timerHint").textContent=blocks>0
+      ? `${blocks} full ${blocks===1?"block":"blocks"} · +${xp} XP · +${coins} coins ready`
+      : "No full 5-minute reward block yet. Whole minutes will still be recorded.";
+    button.textContent="Stop walk and save";
+    button.classList.add("stop-button");
+    discard.classList.remove("hidden");
+  }
+
+  function syncWalkTimerInterval() {
+    clearInterval(walkTimerInterval);
+    walkTimerInterval=null;
+    if(state.activeWalk) walkTimerInterval=setInterval(renderWalkTimer,1000);
   }
 
   function shortDate(date) {
@@ -450,6 +610,7 @@ dialog::backdrop { background:rgba(0,0,0,.7); }
     $("strengthBtn").disabled=strengthDone;
     $("strengthBtn").textContent=strengthDone ? "Boss defeated this week" : "Defeat strength boss";
 
+    renderWalkTimer();
     renderTrophies();
     renderHistory();
   }
@@ -477,8 +638,8 @@ dialog::backdrop { background:rgba(0,0,0,.7); }
     }
     list.innerHTML=recent.map(log=>`<div class="history-item">
       <div><div class="history-title">${escapeHtml(log.title)}</div>
-      <div class="history-meta">${escapeHtml(historyDate(log.timestamp))}</div></div>
-      <div class="history-reward">+${log.xp} XP</div>
+      <div class="history-meta">${escapeHtml(historyDate(log.timestamp))}${log.type==="timedWalk" ? ` · ${log.minutes||0} min` : ""}</div></div>
+      <div class="history-reward">${log.xp>0 ? `+${log.xp} XP` : "No XP"}</div>
       <button class="undo-btn" type="button" data-undo="${escapeHtml(log.id)}">Undo</button>
     </div>`).join("");
     list.querySelectorAll("[data-undo]").forEach(button=>{
@@ -523,6 +684,7 @@ dialog::backdrop { background:rgba(0,0,0,.7); }
       };
       updateTrophies();
       saveState();
+      syncWalkTimerInterval();
       render();
       showToast("Backup imported.");
     } catch(error) {
@@ -542,11 +704,14 @@ dialog::backdrop { background:rgba(0,0,0,.7); }
   function resetProgress() {
     state=defaultState();
     saveState();
+    syncWalkTimerInterval();
     render();
     showToast("All progress reset.");
   }
 
   function bindEvents() {
+    $("timerBtn").addEventListener("click",()=>state.activeWalk ? stopWalk() : startWalk());
+    $("discardWalkBtn").addEventListener("click",discardWalk);
     $("walkBtn").addEventListener("click",()=>addQuest("walk"));
     $("bonusBtn").addEventListener("click",()=>addQuest("bonus"));
     $("strengthBtn").addEventListener("click",()=>addQuest("strength"));
@@ -577,6 +742,10 @@ dialog::backdrop { background:rgba(0,0,0,.7); }
       $("installBtn").classList.add("hidden");
       showToast("QuestLog installed.");
     });
+
+    document.addEventListener("visibilitychange",()=>{
+      if(!document.hidden) renderWalkTimer();
+    });
   }
 
   async function registerServiceWorker() {
@@ -594,6 +763,7 @@ dialog::backdrop { background:rgba(0,0,0,.7); }
     updateTrophies();
     saveState();
     render();
+    syncWalkTimerInterval();
     registerServiceWorker();
     document.documentElement.dataset.questlogReady="true";
     console.info(`QuestLog Fitness ${BUILD} ready`);

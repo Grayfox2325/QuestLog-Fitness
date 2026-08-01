@@ -1,4 +1,4 @@
-const CACHE_NAME = "questlog-fitness-v2";
+const CACHE_NAME = "questlog-fitness-v3";
 const ASSETS = [
   "./",
   "./index.html",
