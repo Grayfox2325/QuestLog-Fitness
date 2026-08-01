@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111827">
+  <meta name="description" content="A private, offline fitness quest tracker with XP, coins, and trophies.">
+  <title>QuestLog Fitness</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">FITNESS QUEST TRACKER</p>
+        <h1>QuestLog</h1>
+      </div>
+      <button id="installBtn" class="secondary hidden" type="button">Install</button>
+    </header>
+
+    <main>
+      <section class="hero panel">
+        <div class="level-badge" aria-label="Current level">
+          <span>LVL</span>
+          <strong id="levelValue">1</strong>
+        </div>
+        <div class="hero-copy">
+          <div class="stat-line">
+            <span id="xpLabel">0 / 100 XP</span>
+            <span id="coinLabel">0 coins</span>
+          </div>
+          <div class="progress-track" aria-label="Level progress">
+            <div id="xpProgress" class="progress-fill"></div>
+          </div>
+          <p id="rankText" class="muted">Rank: Couch Recruit</p>
+        </div>
+      </section>
+
+      <section class="week-panel panel">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">CURRENT CAMPAIGN</p>
+            <h2 id="weekLabel">This week</h2>
+          </div>
+          <div id="weeklyPercent" class="percent-chip">0%</div>
+        </div>
+
+        <div class="weekly-grid">
+          <article class="metric-card">
+            <span class="metric-label">Walk quests</span>
+            <strong><span id="walkCount">0</span>/5</strong>
+            <div class="mini-track"><div id="walkProgress" class="mini-fill"></div></div>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Strength bosses</span>
+            <strong><span id="strengthCount">0</span>/1</strong>
+            <div class="mini-track"><div id="strengthProgress" class="mini-fill"></div></div>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Walking minutes</span>
+            <strong id="minutesCount">0</strong>
+            <span class="metric-sub">this week</span>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-heading outside-heading">
+          <div>
+            <p class="eyebrow">TODAY'S QUESTS</p>
+            <h2 id="todayLabel">Today</h2>
+          </div>
+        </div>
+
+        <div class="quest-stack">
+          <article class="quest-card panel">
+            <div class="quest-icon">5</div>
+            <div class="quest-body">
+              <div class="quest-title-row">
+                <h3>Minimum Movement</h3>
+                <span class="reward">+10 XP · +10</span>
+              </div>
+              <p>Walk for five minutes. One completion per day counts toward the weekly target.</p>
+              <button id="walkBtn" class="primary" type="button">Complete 5-minute walk</button>
+            </div>
+          </article>
+
+          <article class="quest-card panel">
+            <div class="quest-icon bonus">+</div>
+            <div class="quest-body">
+              <div class="quest-title-row">
+                <h3>Bonus Movement</h3>
+                <span class="reward">+5 XP · +5</span>
+              </div>
+              <p>Add another five walking minutes. Repeatable without a daily limit.</p>
+              <button id="bonusBtn" class="secondary full" type="button">Add 5 bonus minutes</button>
+            </div>
+          </article>
+
+          <article class="quest-card panel">
+            <div class="quest-icon boss">B</div>
+            <div class="quest-body">
+              <div class="quest-title-row">
+                <h3>Weekly Boss</h3>
+                <span class="reward">+25 XP · +25</span>
+              </div>
+              <p>One round: 6 chair stands, 6 counter push-ups, 6 band rows, 10 calf raises.</p>
+              <button id="strengthBtn" class="primary boss-button" type="button">Defeat strength boss</button>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel trophies-panel">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">TROPHY CABINET</p>
+            <h2><span id="trophyCount">0</span>/8 unlocked</h2>
+          </div>
+        </div>
+        <div id="trophyGrid" class="trophy-grid"></div>
+      </section>
+
+      <section class="panel">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">RECENT ACTIVITY</p>
+            <h2>Quest history</h2>
+          </div>
+        </div>
+        <div id="historyList" class="history-list"></div>
+      </section>
+
+      <section class="panel settings-panel">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">DATA</p>
+            <h2>Backup and control</h2>
+          </div>
+        </div>
+        <p class="muted">Progress is stored only in this browser. Export a backup before clearing browser data or changing phones.</p>
+        <div class="button-row">
+          <button id="exportBtn" class="secondary" type="button">Export backup</button>
+          <label class="secondary file-label">
+            Import backup
+            <input id="importInput" type="file" accept="application/json">
+          </label>
+          <button id="resetBtn" class="danger" type="button">Reset progress</button>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>No streak penalties. No missed-day damage. Total progress never expires.</p>
+    </footer>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <dialog id="resetDialog">
+    <form method="dialog">
+      <h2>Reset all progress?</h2>
+      <p>This permanently deletes XP, coins, trophies, and history from this device.</p>
+      <div class="dialog-actions">
+        <button value="cancel" class="secondary">Cancel</button>
+        <button id="confirmResetBtn" value="confirm" class="danger">Delete everything</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>

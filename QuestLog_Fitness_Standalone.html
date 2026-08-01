@@ -1,0 +1,1043 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111827">
+  <meta name="description" content="A private, offline fitness quest tracker with XP, coins, and trophies.">
+  <title>QuestLog Fitness</title>
+  <style>
+:root {
+  color-scheme: dark;
+  --bg: #080c14;
+  --surface: #111827;
+  --surface-2: #172033;
+  --line: #293349;
+  --text: #f4f7fb;
+  --muted: #9ca8bb;
+  --accent: #7dd3fc;
+  --accent-strong: #38bdf8;
+  --gold: #fbbf24;
+  --green: #4ade80;
+  --danger: #fb7185;
+  --shadow: 0 18px 45px rgba(0, 0, 0, 0.28);
+  --radius: 18px;
+}
+
+* { box-sizing: border-box; }
+
+html {
+  background: var(--bg);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 20% -10%, rgba(56, 189, 248, 0.16), transparent 30rem),
+    radial-gradient(circle at 100% 10%, rgba(251, 191, 36, 0.08), transparent 24rem),
+    var(--bg);
+  color: var(--text);
+}
+
+button, label { font: inherit; }
+
+button {
+  border: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible, label:focus-within {
+  outline: 3px solid rgba(125, 211, 252, 0.55);
+  outline-offset: 2px;
+}
+
+.app-shell {
+  width: min(720px, 100%);
+  margin: 0 auto;
+  padding: max(18px, env(safe-area-inset-top)) 16px calc(30px + env(safe-area-inset-bottom));
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+h1, h2, h3, p { margin-top: 0; }
+h1 { margin-bottom: 0; font-size: clamp(2rem, 8vw, 3.1rem); letter-spacing: -0.055em; }
+h2 { margin-bottom: 0; font-size: 1.25rem; letter-spacing: -0.02em; }
+h3 { margin-bottom: 0; font-size: 1.05rem; }
+p { line-height: 1.5; }
+
+.eyebrow {
+  margin-bottom: 4px;
+  color: var(--accent);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+}
+
+.panel {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: linear-gradient(145deg, rgba(23, 32, 51, 0.95), rgba(14, 21, 34, 0.96));
+  box-shadow: var(--shadow);
+}
+
+.hero {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px;
+  margin-bottom: 14px;
+}
+
+.level-badge {
+  width: 76px;
+  min-width: 76px;
+  aspect-ratio: 1;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  border: 2px solid var(--accent);
+  border-radius: 22px;
+  background: rgba(56, 189, 248, 0.08);
+  box-shadow: inset 0 0 24px rgba(56, 189, 248, 0.08);
+}
+
+.level-badge span {
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  color: var(--muted);
+}
+
+.level-badge strong {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.hero-copy { flex: 1; min-width: 0; }
+
+.stat-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 9px;
+  font-size: 0.83rem;
+  font-weight: 700;
+}
+
+.progress-track, .mini-track {
+  overflow: hidden;
+  background: #070b12;
+  border: 1px solid #253047;
+}
+
+.progress-track {
+  height: 12px;
+  border-radius: 999px;
+}
+
+.progress-fill, .mini-fill {
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, var(--accent-strong), var(--green));
+  transition: width 300ms ease;
+}
+
+.rankText { margin-top: 8px; margin-bottom: 0; }
+
+.muted { color: var(--muted); }
+
+.week-panel, .trophies-panel, .settings-panel, main > .panel {
+  padding: 18px;
+  margin-bottom: 14px;
+}
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.outside-heading {
+  margin: 28px 4px 12px;
+}
+
+.percent-chip {
+  padding: 7px 10px;
+  border: 1px solid rgba(74, 222, 128, 0.35);
+  border-radius: 999px;
+  background: rgba(74, 222, 128, 0.09);
+  color: var(--green);
+  font-weight: 800;
+}
+
+.weekly-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.metric-card {
+  min-width: 0;
+  padding: 13px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(6, 10, 18, 0.36);
+}
+
+.metric-card strong {
+  display: block;
+  margin: 5px 0 8px;
+  font-size: 1.45rem;
+}
+
+.metric-label, .metric-sub {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.mini-track {
+  height: 7px;
+  border-radius: 999px;
+}
+
+.quest-stack {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.quest-card {
+  display: flex;
+  gap: 14px;
+  padding: 16px;
+}
+
+.quest-icon {
+  width: 48px;
+  min-width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 15px;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(125, 211, 252, 0.35);
+  color: var(--accent);
+  font-size: 1.15rem;
+  font-weight: 900;
+}
+
+.quest-icon.bonus {
+  color: var(--green);
+  border-color: rgba(74, 222, 128, 0.35);
+  background: rgba(74, 222, 128, 0.1);
+}
+
+.quest-icon.boss {
+  color: var(--gold);
+  border-color: rgba(251, 191, 36, 0.35);
+  background: rgba(251, 191, 36, 0.09);
+}
+
+.quest-body { flex: 1; min-width: 0; }
+
+.quest-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.reward {
+  flex: none;
+  color: var(--gold);
+  font-size: 0.72rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.quest-card p {
+  margin: 8px 0 14px;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.primary, .secondary, .danger, .file-label {
+  min-height: 44px;
+  padding: 11px 15px;
+  border-radius: 12px;
+  font-weight: 800;
+  text-align: center;
+  transition: transform 100ms ease, opacity 100ms ease, border-color 100ms ease;
+}
+
+.primary:active, .secondary:active, .danger:active, .file-label:active { transform: scale(0.98); }
+
+.primary {
+  background: linear-gradient(135deg, var(--accent-strong), #60a5fa);
+  color: #06111b;
+}
+
+.boss-button {
+  background: linear-gradient(135deg, var(--gold), #fb923c);
+  color: #1c1001;
+}
+
+.secondary, .file-label {
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid #3a4660;
+  background: #172033;
+  color: var(--text);
+}
+
+.danger {
+  border: 1px solid rgba(251, 113, 133, 0.4);
+  background: rgba(251, 113, 133, 0.1);
+  color: #fecdd3;
+}
+
+.full { width: 100%; }
+
+button:disabled {
+  cursor: default;
+  opacity: 0.48;
+  filter: grayscale(0.35);
+}
+
+.trophy-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.trophy {
+  position: relative;
+  min-height: 125px;
+  padding: 14px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  background: rgba(6, 10, 18, 0.38);
+}
+
+.trophy.unlocked {
+  border-color: rgba(251, 191, 36, 0.45);
+  background: linear-gradient(150deg, rgba(251, 191, 36, 0.11), rgba(6, 10, 18, 0.45));
+}
+
+.trophy-mark {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 10px;
+  border-radius: 11px;
+  background: #1d2739;
+  color: #67748b;
+  font-weight: 900;
+}
+
+.trophy.unlocked .trophy-mark {
+  background: rgba(251, 191, 36, 0.16);
+  color: var(--gold);
+}
+
+.trophy h3 { font-size: 0.9rem; }
+.trophy p { margin: 6px 0 0; color: var(--muted); font-size: 0.76rem; line-height: 1.35; }
+.trophy-status { position: absolute; top: 13px; right: 13px; color: var(--muted); font-size: 0.65rem; font-weight: 800; text-transform: uppercase; }
+
+.history-list { display: grid; gap: 8px; }
+
+.history-item {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.history-item:last-child { border-bottom: 0; }
+.history-title { font-weight: 750; font-size: 0.9rem; }
+.history-meta { color: var(--muted); font-size: 0.74rem; }
+.history-reward { color: var(--green); font-size: 0.75rem; font-weight: 800; }
+
+.undo-btn {
+  min-height: 34px;
+  padding: 7px 9px;
+  border: 1px solid #3a4660;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+.empty-state {
+  padding: 12px 0 4px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.file-label input { display: none; }
+
+footer {
+  padding: 12px 6px 0;
+  color: #728096;
+  text-align: center;
+  font-size: 0.78rem;
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(20px + env(safe-area-inset-bottom));
+  z-index: 20;
+  width: min(92vw, 440px);
+  padding: 13px 16px;
+  transform: translate(-50%, 120px);
+  opacity: 0;
+  border: 1px solid rgba(125, 211, 252, 0.35);
+  border-radius: 13px;
+  background: #111827;
+  box-shadow: var(--shadow);
+  color: var(--text);
+  font-weight: 750;
+  transition: transform 220ms ease, opacity 220ms ease;
+}
+
+.toast.show {
+  transform: translate(-50%, 0);
+  opacity: 1;
+}
+
+dialog {
+  width: min(92vw, 430px);
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: #111827;
+  color: var(--text);
+  box-shadow: var(--shadow);
+}
+
+dialog::backdrop { background: rgba(0, 0, 0, 0.7); }
+.dialog-actions { display: flex; justify-content: flex-end; gap: 9px; margin-top: 20px; }
+
+.hidden { display: none !important; }
+
+@media (max-width: 520px) {
+  .weekly-grid { grid-template-columns: 1fr 1fr; }
+  .metric-card:last-child { grid-column: 1 / -1; }
+  .quest-title-row { display: block; }
+  .reward { display: inline-block; margin-top: 5px; }
+  .trophy-grid { grid-template-columns: 1fr; }
+  .quest-card { padding: 14px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    transition: none !important;
+  }
+}
+
+</style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">FITNESS QUEST TRACKER</p>
+        <h1>QuestLog</h1>
+      </div>
+      
+    </header>
+
+    <main>
+      <section class="hero panel">
+        <div class="level-badge" aria-label="Current level">
+          <span>LVL</span>
+          <strong id="levelValue">1</strong>
+        </div>
+        <div class="hero-copy">
+          <div class="stat-line">
+            <span id="xpLabel">0 / 100 XP</span>
+            <span id="coinLabel">0 coins</span>
+          </div>
+          <div class="progress-track" aria-label="Level progress">
+            <div id="xpProgress" class="progress-fill"></div>
+          </div>
+          <p id="rankText" class="muted">Rank: Couch Recruit</p>
+        </div>
+      </section>
+
+      <section class="week-panel panel">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">CURRENT CAMPAIGN</p>
+            <h2 id="weekLabel">This week</h2>
+          </div>
+          <div id="weeklyPercent" class="percent-chip">0%</div>
+        </div>
+
+        <div class="weekly-grid">
+          <article class="metric-card">
+            <span class="metric-label">Walk quests</span>
+            <strong><span id="walkCount">0</span>/5</strong>
+            <div class="mini-track"><div id="walkProgress" class="mini-fill"></div></div>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Strength bosses</span>
+            <strong><span id="strengthCount">0</span>/1</strong>
+            <div class="mini-track"><div id="strengthProgress" class="mini-fill"></div></div>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Walking minutes</span>
+            <strong id="minutesCount">0</strong>
+            <span class="metric-sub">this week</span>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-heading outside-heading">
+          <div>
+            <p class="eyebrow">TODAY'S QUESTS</p>
+            <h2 id="todayLabel">Today</h2>
+          </div>
+        </div>
+
+        <div class="quest-stack">
+          <article class="quest-card panel">
+            <div class="quest-icon">5</div>
+            <div class="quest-body">
+              <div class="quest-title-row">
+                <h3>Minimum Movement</h3>
+                <span class="reward">+10 XP · +10</span>
+              </div>
+              <p>Walk for five minutes. One completion per day counts toward the weekly target.</p>
+              <button id="walkBtn" class="primary" type="button">Complete 5-minute walk</button>
+            </div>
+          </article>
+
+          <article class="quest-card panel">
+            <div class="quest-icon bonus">+</div>
+            <div class="quest-body">
+              <div class="quest-title-row">
+                <h3>Bonus Movement</h3>
+                <span class="reward">+5 XP · +5</span>
+              </div>
+              <p>Add another five walking minutes. Repeatable without a daily limit.</p>
+              <button id="bonusBtn" class="secondary full" type="button">Add 5 bonus minutes</button>
+            </div>
+          </article>
+
+          <article class="quest-card panel">
+            <div class="quest-icon boss">B</div>
+            <div class="quest-body">
+              <div class="quest-title-row">
+                <h3>Weekly Boss</h3>
+                <span class="reward">+25 XP · +25</span>
+              </div>
+              <p>One round: 6 chair stands, 6 counter push-ups, 6 band rows, 10 calf raises.</p>
+              <button id="strengthBtn" class="primary boss-button" type="button">Defeat strength boss</button>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel trophies-panel">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">TROPHY CABINET</p>
+            <h2><span id="trophyCount">0</span>/8 unlocked</h2>
+          </div>
+        </div>
+        <div id="trophyGrid" class="trophy-grid"></div>
+      </section>
+
+      <section class="panel">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">RECENT ACTIVITY</p>
+            <h2>Quest history</h2>
+          </div>
+        </div>
+        <div id="historyList" class="history-list"></div>
+      </section>
+
+      <section class="panel settings-panel">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">DATA</p>
+            <h2>Backup and control</h2>
+          </div>
+        </div>
+        <p class="muted">Progress is stored only in this browser. Export a backup before clearing browser data or changing phones.</p>
+        <div class="button-row">
+          <button id="exportBtn" class="secondary" type="button">Export backup</button>
+          <label class="secondary file-label">
+            Import backup
+            <input id="importInput" type="file" accept="application/json">
+          </label>
+          <button id="resetBtn" class="danger" type="button">Reset progress</button>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>No streak penalties. No missed-day damage. Total progress never expires.</p>
+    </footer>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <dialog id="resetDialog">
+    <form method="dialog">
+      <h2>Reset all progress?</h2>
+      <p>This permanently deletes XP, coins, trophies, and history from this device.</p>
+      <div class="dialog-actions">
+        <button value="cancel" class="secondary">Cancel</button>
+        <button id="confirmResetBtn" value="confirm" class="danger">Delete everything</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+(() => {
+  "use strict";
+
+  const STORAGE_KEY = "questlog-fitness-v1";
+  const XP_PER_LEVEL = 100;
+
+  const QUESTS = {
+    walk: { title: "Minimum Movement", xp: 10, coins: 10, minutes: 5 },
+    bonus: { title: "Bonus Movement", xp: 5, coins: 5, minutes: 5 },
+    strength: { title: "Weekly Boss", xp: 25, coins: 25, minutes: 0 }
+  };
+
+  const TROPHIES = [
+    { id: "press-start", name: "Press Start", description: "Complete your first walk.", test: s => s.totals.walks >= 1 },
+    { id: "tutorial", name: "Tutorial Complete", description: "Complete 5 minimum walks.", test: s => s.totals.walks >= 5 },
+    { id: "first-boss", name: "First Boss Defeated", description: "Complete 1 strength circuit.", test: s => s.totals.strength >= 1 },
+    { id: "bronze-walker", name: "Bronze Walker", description: "Complete 10 minimum walks.", test: s => s.totals.walks >= 10 },
+    { id: "silver-walker", name: "Silver Walker", description: "Complete 20 minimum walks.", test: s => s.totals.walks >= 20 },
+    { id: "strength-online", name: "Strength Online", description: "Complete 4 strength circuits.", test: s => s.totals.strength >= 4 },
+    { id: "distance-300", name: "No Longer Sedentary", description: "Accumulate 300 walking minutes.", test: s => s.totals.walkMinutes >= 300 },
+    {
+      id: "month-one",
+      name: "Month One Platinum",
+      description: "Complete 20 minimum walks and 4 strength circuits.",
+      test: s => s.totals.walks >= 20 && s.totals.strength >= 4
+    }
+  ];
+
+  const RANKS = [
+    [1, "Couch Recruit"],
+    [3, "Routine Initiate"],
+    [5, "Movement Adept"],
+    [8, "Consistency Hunter"],
+    [12, "Habit Vanguard"],
+    [20, "Platinum Operator"]
+  ];
+
+  const defaultState = () => ({
+    version: 1,
+    xp: 0,
+    coins: 0,
+    logs: [],
+    unlocked: [],
+    totals: {
+      walks: 0,
+      bonusWalks: 0,
+      strength: 0,
+      walkMinutes: 0
+    }
+  });
+
+  let state = loadState();
+  let deferredInstallPrompt = null;
+  let toastTimer = null;
+
+  const $ = id => document.getElementById(id);
+
+  function localDateKey(date = new Date()) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  }
+
+  function startOfWeek(date = new Date()) {
+    const copy = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const day = copy.getDay();
+    const diff = day === 0 ? -6 : 1 - day;
+    copy.setDate(copy.getDate() + diff);
+    copy.setHours(0, 0, 0, 0);
+    return copy;
+  }
+
+  function endOfWeek(date = new Date()) {
+    const start = startOfWeek(date);
+    const end = new Date(start);
+    end.setDate(start.getDate() + 6);
+    return end;
+  }
+
+  function isThisWeek(timestamp) {
+    const time = new Date(timestamp).getTime();
+    return time >= startOfWeek().getTime() && time < (endOfWeek().getTime() + 86400000);
+  }
+
+  function loadState() {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY));
+      if (!parsed || parsed.version !== 1) return defaultState();
+      return {
+        ...defaultState(),
+        ...parsed,
+        totals: { ...defaultState().totals, ...(parsed.totals || {}) },
+        logs: Array.isArray(parsed.logs) ? parsed.logs : [],
+        unlocked: Array.isArray(parsed.unlocked) ? parsed.unlocked : []
+      };
+    } catch {
+      return defaultState();
+    }
+  }
+
+  function saveState() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+
+  function makeId() {
+    return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  }
+
+  function addQuest(type) {
+    const quest = QUESTS[type];
+    if (!quest) return;
+
+    if (type === "walk" && hasCompletedWalkToday()) {
+      showToast("Today's minimum walk is already complete. Use Bonus Movement for extra minutes.");
+      return;
+    }
+    if (type === "strength" && hasCompletedStrengthThisWeek()) {
+      showToast("This week's strength boss is already defeated.");
+      return;
+    }
+
+    const log = {
+      id: makeId(),
+      type,
+      title: quest.title,
+      xp: quest.xp,
+      coins: quest.coins,
+      minutes: quest.minutes,
+      dateKey: localDateKey(),
+      timestamp: new Date().toISOString()
+    };
+
+    state.logs.unshift(log);
+    state.xp += quest.xp;
+    state.coins += quest.coins;
+
+    if (type === "walk") state.totals.walks += 1;
+    if (type === "bonus") state.totals.bonusWalks += 1;
+    if (type === "strength") state.totals.strength += 1;
+    state.totals.walkMinutes += quest.minutes;
+
+    const newTrophies = updateTrophies();
+    saveState();
+    render();
+
+    const baseMessage = `${quest.title} complete: +${quest.xp} XP, +${quest.coins} coins.`;
+    showToast(newTrophies.length ? `${baseMessage} Trophy unlocked: ${newTrophies.join(", ")}.` : baseMessage);
+    vibrate([35, 25, 55]);
+  }
+
+  function undoLog(id) {
+    const index = state.logs.findIndex(log => log.id === id);
+    if (index < 0) return;
+    const [log] = state.logs.splice(index, 1);
+
+    state.xp = Math.max(0, state.xp - log.xp);
+    state.coins = Math.max(0, state.coins - log.coins);
+    if (log.type === "walk") state.totals.walks = Math.max(0, state.totals.walks - 1);
+    if (log.type === "bonus") state.totals.bonusWalks = Math.max(0, state.totals.bonusWalks - 1);
+    if (log.type === "strength") state.totals.strength = Math.max(0, state.totals.strength - 1);
+    state.totals.walkMinutes = Math.max(0, state.totals.walkMinutes - (log.minutes || 0));
+
+    state.unlocked = TROPHIES.filter(trophy => trophy.test(state)).map(trophy => trophy.id);
+    saveState();
+    render();
+    showToast("Completion removed.");
+  }
+
+  function updateTrophies() {
+    const newlyUnlocked = [];
+    TROPHIES.forEach(trophy => {
+      if (trophy.test(state) && !state.unlocked.includes(trophy.id)) {
+        state.unlocked.push(trophy.id);
+        newlyUnlocked.push(trophy.name);
+      }
+    });
+    return newlyUnlocked;
+  }
+
+  function hasCompletedWalkToday() {
+    const today = localDateKey();
+    return state.logs.some(log => log.type === "walk" && log.dateKey === today);
+  }
+
+  function hasCompletedStrengthThisWeek() {
+    return state.logs.some(log => log.type === "strength" && isThisWeek(log.timestamp));
+  }
+
+  function getWeeklyStats() {
+    const logs = state.logs.filter(log => isThisWeek(log.timestamp));
+    return {
+      walks: logs.filter(log => log.type === "walk").length,
+      strength: logs.filter(log => log.type === "strength").length,
+      minutes: logs.reduce((sum, log) => sum + (log.minutes || 0), 0)
+    };
+  }
+
+  function formatShortDate(date) {
+    return new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" }).format(date);
+  }
+
+  function formatHistoryDate(timestamp) {
+    const date = new Date(timestamp);
+    const today = localDateKey();
+    const yesterdayDate = new Date();
+    yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+    const label = localDateKey(date) === today
+      ? "Today"
+      : localDateKey(date) === localDateKey(yesterdayDate)
+        ? "Yesterday"
+        : new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" }).format(date);
+    const time = new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit" }).format(date);
+    return `${label} · ${time}`;
+  }
+
+  function getRank(level) {
+    let rank = RANKS[0][1];
+    for (const [minimum, name] of RANKS) {
+      if (level >= minimum) rank = name;
+    }
+    return rank;
+  }
+
+  function render() {
+    const level = Math.floor(state.xp / XP_PER_LEVEL) + 1;
+    const xpInLevel = state.xp % XP_PER_LEVEL;
+    const weekly = getWeeklyStats();
+    const weeklyObjectives = Math.min(weekly.walks, 5) + Math.min(weekly.strength, 1);
+    const weeklyPercent = Math.round((weeklyObjectives / 6) * 100);
+
+    $("levelValue").textContent = level;
+    $("xpLabel").textContent = `${xpInLevel} / ${XP_PER_LEVEL} XP`;
+    $("coinLabel").textContent = `${state.coins} coins`;
+    $("xpProgress").style.width = `${xpInLevel}%`;
+    $("rankText").textContent = `Rank: ${getRank(level)}`;
+
+    $("weekLabel").textContent = `${formatShortDate(startOfWeek())}–${formatShortDate(endOfWeek())}`;
+    $("weeklyPercent").textContent = `${weeklyPercent}%`;
+    $("walkCount").textContent = weekly.walks;
+    $("strengthCount").textContent = weekly.strength;
+    $("minutesCount").textContent = weekly.minutes;
+    $("walkProgress").style.width = `${Math.min(100, (weekly.walks / 5) * 100)}%`;
+    $("strengthProgress").style.width = `${Math.min(100, weekly.strength * 100)}%`;
+
+    $("todayLabel").textContent = new Intl.DateTimeFormat(undefined, {
+      weekday: "long",
+      month: "long",
+      day: "numeric"
+    }).format(new Date());
+
+    const walkDone = hasCompletedWalkToday();
+    $("walkBtn").disabled = walkDone;
+    $("walkBtn").textContent = walkDone ? "Completed today" : "Complete 5-minute walk";
+
+    const strengthDone = hasCompletedStrengthThisWeek();
+    $("strengthBtn").disabled = strengthDone;
+    $("strengthBtn").textContent = strengthDone ? "Boss defeated this week" : "Defeat strength boss";
+
+    renderTrophies();
+    renderHistory();
+  }
+
+  function renderTrophies() {
+    const unlockedCount = TROPHIES.filter(trophy => state.unlocked.includes(trophy.id)).length;
+    $("trophyCount").textContent = unlockedCount;
+    $("trophyGrid").innerHTML = TROPHIES.map((trophy, index) => {
+      const unlocked = state.unlocked.includes(trophy.id);
+      return `
+        <article class="trophy ${unlocked ? "unlocked" : ""}">
+          <span class="trophy-status">${unlocked ? "Unlocked" : "Locked"}</span>
+          <div class="trophy-mark">${unlocked ? "★" : index + 1}</div>
+          <h3>${escapeHtml(trophy.name)}</h3>
+          <p>${escapeHtml(trophy.description)}</p>
+        </article>
+      `;
+    }).join("");
+  }
+
+  function renderHistory() {
+    const list = $("historyList");
+    const recent = state.logs.slice(0, 12);
+    if (!recent.length) {
+      list.innerHTML = `<div class="empty-state">No quests completed yet.</div>`;
+      return;
+    }
+
+    list.innerHTML = recent.map(log => `
+      <div class="history-item">
+        <div>
+          <div class="history-title">${escapeHtml(log.title)}</div>
+          <div class="history-meta">${escapeHtml(formatHistoryDate(log.timestamp))}</div>
+        </div>
+        <div class="history-reward">+${log.xp} XP</div>
+        <button class="undo-btn" type="button" data-undo="${escapeHtml(log.id)}">Undo</button>
+      </div>
+    `).join("");
+
+    list.querySelectorAll("[data-undo]").forEach(button => {
+      button.addEventListener("click", () => undoLog(button.dataset.undo));
+    });
+  }
+
+  function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, char => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#039;"
+    })[char]);
+  }
+
+  function showToast(message) {
+    const toast = $("toast");
+    toast.textContent = message;
+    toast.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove("show"), 4200);
+  }
+
+  function vibrate(pattern) {
+    if ("vibrate" in navigator) navigator.vibrate(pattern);
+  }
+
+  function exportBackup() {
+    const payload = JSON.stringify({
+      exportedAt: new Date().toISOString(),
+      application: "QuestLog Fitness",
+      state
+    }, null, 2);
+
+    const blob = new Blob([payload], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `questlog-fitness-backup-${localDateKey()}.json`;
+    anchor.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  async function importBackup(file) {
+    try {
+      const raw = await file.text();
+      const parsed = JSON.parse(raw);
+      const incoming = parsed.state || parsed;
+      if (!incoming || incoming.version !== 1 || !Array.isArray(incoming.logs)) {
+        throw new Error("Invalid backup");
+      }
+      state = {
+        ...defaultState(),
+        ...incoming,
+        totals: { ...defaultState().totals, ...(incoming.totals || {}) },
+        logs: incoming.logs,
+        unlocked: Array.isArray(incoming.unlocked) ? incoming.unlocked : []
+      };
+      updateTrophies();
+      saveState();
+      render();
+      showToast("Backup imported.");
+    } catch {
+      showToast("Import failed. Select a QuestLog Fitness backup file.");
+    } finally {
+      $("importInput").value = "";
+    }
+  }
+
+  function bindEvents() {
+    $("walkBtn").addEventListener("click", () => addQuest("walk"));
+    $("bonusBtn").addEventListener("click", () => addQuest("bonus"));
+    $("strengthBtn").addEventListener("click", () => addQuest("strength"));
+    $("exportBtn").addEventListener("click", exportBackup);
+    $("importInput").addEventListener("change", event => {
+      const [file] = event.target.files;
+      if (file) importBackup(file);
+    });
+    $("resetBtn").addEventListener("click", () => $("resetDialog").showModal());
+    $("confirmResetBtn").addEventListener("click", () => {
+      state = defaultState();
+      saveState();
+      render();
+      showToast("All progress reset.");
+    });
+
+    window.addEventListener("beforeinstallprompt", event => {
+      event.preventDefault();
+      deferredInstallPrompt = event;
+      $("installBtn").classList.remove("hidden");
+    });
+
+    $("installBtn").addEventListener("click", async () => {
+      if (!deferredInstallPrompt) return;
+      deferredInstallPrompt.prompt();
+      await deferredInstallPrompt.userChoice;
+      deferredInstallPrompt = null;
+      $("installBtn").classList.add("hidden");
+    });
+
+    window.addEventListener("appinstalled", () => {
+      deferredInstallPrompt = null;
+      $("installBtn").classList.add("hidden");
+      showToast("QuestLog installed.");
+    });
+  }
+
+  function registerServiceWorker() {
+    if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+      navigator.serviceWorker.register("sw.js").catch(() => {});
+    }
+  }
+
+  bindEvents();
+  updateTrophies();
+  saveState();
+  render();
+  registerServiceWorker();
+})();
+
+</script>
+</body>
+</html>
