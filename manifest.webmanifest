@@ -1,7 +1,7 @@
 {
   "name": "QuestLog Fitness",
   "short_name": "QuestLog",
-  "description": "Private offline fitness quest tracker with XP, coins, and trophies.",
+  "description": "Private offline weight-loss quest tracker with daily habits, campaigns, XP, coins, and trophies.",
   "id": "./",
   "start_url": "./",
   "scope": "./",

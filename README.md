@@ -1,34 +1,28 @@
-# QuestLog Fitness — Walk Timer Build 3.0
+# QuestLog Fitness — Weight-Loss Campaign Build 4.0
 
-## What is new
+QuestLog is a private, offline-first habit tracker that uses short video-game-style campaigns to support practical weight-loss behaviours without calorie logging, streak penalties, or complex workout programming.
 
-- A persistent start/stop walk timer that survives screen locking, switching apps, and reopening QuestLog.
-- Actual whole walking minutes are recorded when a timed walk is stopped.
-- The first full five-minute block of the day earns 10 XP and 10 coins. Every additional full block earns 5 XP and 5 coins.
-- Partial five-minute blocks add to walking minutes but do not earn another reward block.
-- An active timer can be discarded without changing progress.
-- Manual five-minute walk buttons remain available as a fallback.
-- Undo removes all minutes, XP, coins, and walk credits from a timed session.
+## Build 4.0
 
-## Reward examples
+- Daily Quest Board with a timed walk, healthy meal, no-impulse-delivery day, and weekly strength boss.
+- Automatic walk rewards: 10 XP and coins for the first full five-minute block each day, then 5 for every additional block.
+- Weekly weigh-ins with starting weight, current weight, total change, goal progress, a four-entry trend chart, and a clearly labelled estimated trajectory.
+- Behaviour-based weigh-in rewards. XP is awarded for recording data, never for a particular scale result.
+- Adaptive walking and strength targets. Promotion requires at least 80% completion for two consecutive weeks and must be accepted manually.
+- User-created coin rewards with purchase history and Undo.
+- Four-week campaigns covering walks, healthy meals, delivery choices, strength sessions, and weigh-ins.
+- Weekly recaps, personal records, campaign trophies, cosmetic titles, and a penalty-free Resume Campaign flow.
 
-| Timed walk | Reward |
-| ---: | ---: |
-| 4:59 | No XP or coins |
-| 5:00 | 10 XP, 10 coins |
-| 9:59 | 10 XP, 10 coins |
-| 10:00 | 15 XP, 15 coins |
-| 20:00 | 25 XP, 25 coins |
+## Deliberately excluded
 
-## Upload instructions
+QuestLog does not include calorie or macro tracking, GPS routes, step counting, social leaderboards, daily weigh-ins, barcode scanning, AI coaching, medication interpretation, or missed-day penalties.
 
-1. Open the root of the `QuestLog-Fitness` GitHub repository.
-2. Choose **Add file → Upload files**.
-3. Upload every file inside this folder directly into the repository root.
-4. When GitHub reports conflicts, replace the existing files.
-5. Commit the upload to the `main` branch.
-6. Wait for the GitHub Pages deployment to finish.
-7. Open the site in Chrome and verify that the footer says **Build 3.0**.
-8. If the installed shortcut still shows the old build, close it completely and reopen it. If necessary, clear the site's cache or remove and reinstall the shortcut.
+## Data and upgrades
 
-Progress continues to use the same `questlog-fitness-v1` browser storage key, so existing progress is retained. The offline cache is upgraded automatically to `questlog-fitness-v3`.
+Progress is stored only in the browser under the existing `questlog-fitness-v1` storage key. Build 4 migrates Build 2 and Build 3 progress automatically, including XP, coins, walking history, trophies, and an active walk timer.
+
+Use **Export backup** inside the app before clearing browser data or changing devices. The offline cache upgrades automatically to `questlog-fitness-v4`.
+
+## Deploy
+
+Upload all repository files to the site root or enable GitHub Pages from the `main` branch. Open the deployed site and confirm that the footer says **Build 4.0**.

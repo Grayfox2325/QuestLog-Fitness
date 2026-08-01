@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#111827">
-  <meta name="description" content="A private, offline fitness quest tracker with XP, coins, and trophies.">
+  <meta name="description" content="A private, offline weight-loss quest tracker with daily habits, campaigns, XP, coins, and trophies.">
   <title>QuestLog Fitness</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icon-192.png">
@@ -83,6 +83,46 @@ p { line-height:1.5; }
 .timer-card.running .timer-hint { color:var(--green)!important; }
 .timer-actions { display:grid; grid-template-columns:1fr auto; gap:9px; }
 .primary.stop-button { background:linear-gradient(135deg,var(--green),#22c55e); color:#04140a; }
+.compact-button { min-height:36px; padding:8px 11px; font-size:.76rem; }
+.quest-status { display:block; margin:-5px 0 12px; color:var(--accent); font-size:.78rem; font-weight:800; }
+.quest-card.completed { border-color:rgba(74,222,128,.4); }
+.quest-card.completed .quest-icon { color:var(--green); border-color:rgba(74,222,128,.35); background:rgba(74,222,128,.1); }
+.form-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+.form-grid .wide { grid-column:1/-1; }
+.field { display:grid; gap:6px; color:var(--muted); font-size:.75rem; font-weight:750; }
+input,select { width:100%; min-height:43px; padding:10px 11px; border:1px solid #3a4660; border-radius:11px; background:#0d1524; color:var(--text); font:inherit; }
+input:focus,select:focus { outline:3px solid rgba(125,211,252,.35); border-color:var(--accent); }
+.stats-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:9px; margin:14px 0; }
+.stats-grid .wide { grid-column:span 3; }
+.stat-card { min-width:0; padding:11px; border:1px solid var(--line); border-radius:12px; background:rgba(6,10,18,.34); }
+.stat-card span { display:block; color:var(--muted); font-size:.68rem; }
+.stat-card strong { display:block; margin-top:5px; font-size:1rem; overflow-wrap:anywhere; }
+.chart-wrap { min-height:180px; padding:10px; border:1px solid var(--line); border-radius:14px; background:rgba(6,10,18,.34); }
+.weight-chart { width:100%; height:180px; display:block; overflow:visible; }
+.chart-line { fill:none; stroke:var(--accent); stroke-width:3; stroke-linecap:round; stroke-linejoin:round; }
+.chart-area { fill:url(#weightGradient); }
+.chart-dot { fill:var(--surface); stroke:var(--green); stroke-width:3; }
+.chart-label { fill:var(--muted); font-size:10px; }
+.progress-list { display:grid; gap:10px; }
+.progress-row { display:grid; grid-template-columns:145px 1fr auto; align-items:center; gap:10px; }
+.progress-row span { color:var(--muted); font-size:.78rem; }
+.progress-row strong { font-size:.78rem; }
+.campaign-track { height:9px; overflow:hidden; border:1px solid #253047; border-radius:999px; background:#070b12; }
+.campaign-fill { height:100%; background:linear-gradient(90deg,var(--accent-strong),var(--green)); }
+.callout { padding:14px; margin-bottom:14px; border:1px solid rgba(125,211,252,.35); border-radius:14px; background:rgba(56,189,248,.08); }
+.callout.success { border-color:rgba(74,222,128,.38); background:rgba(74,222,128,.08); }
+.callout p:last-child { margin-bottom:0; }
+.recap-grid,.records-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:9px; }
+.recap-item,.record-item { padding:11px; border:1px solid var(--line); border-radius:12px; background:rgba(6,10,18,.34); }
+.recap-item span,.record-item span { display:block; color:var(--muted); font-size:.68rem; }
+.recap-item strong,.record-item strong { display:block; margin-top:5px; font-size:1.05rem; }
+.shop-list { display:grid; gap:9px; margin-top:14px; }
+.shop-item { display:grid; grid-template-columns:1fr auto auto; align-items:center; gap:10px; padding:12px; border:1px solid var(--line); border-radius:13px; background:rgba(6,10,18,.34); }
+.shop-item-title { font-weight:800; }
+.shop-item-meta { margin-top:3px; color:var(--muted); font-size:.72rem; }
+.coin-cost { color:var(--gold); font-weight:850; white-space:nowrap; }
+.text-button { padding:5px; background:transparent; color:var(--muted); font-size:.72rem; text-decoration:underline; }
+.panel-note { margin:-6px 0 14px; color:var(--muted); font-size:.8rem; }
 .primary,.secondary,.danger,.file-label { min-height:44px; padding:11px 15px; border-radius:12px; font-weight:800; text-align:center; transition:transform .1s ease,opacity .1s ease; }
 .primary:active,.secondary:active,.danger:active,.file-label:active { transform:scale(.98); }
 .primary { background:linear-gradient(135deg,var(--accent-strong),#60a5fa); color:#06111b; }
@@ -125,6 +165,14 @@ dialog::backdrop { background:rgba(0,0,0,.7); }
   .trophy-grid{grid-template-columns:1fr}
   .quest-card{padding:14px}
   .timer-actions{grid-template-columns:1fr}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .stats-grid .wide{grid-column:1/-1}
+  .recap-grid,.records-grid{grid-template-columns:repeat(2,1fr)}
+  .form-grid{grid-template-columns:1fr}
+  .form-grid .wide{grid-column:auto}
+  .progress-row{grid-template-columns:105px 1fr auto}
+  .shop-item{grid-template-columns:1fr auto}
+  .shop-item .text-button{grid-column:1/-1;justify-self:start}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
 </style>
@@ -147,61 +195,138 @@ dialog::backdrop { background:rgba(0,0,0,.7); }
 
       <section class="week-panel panel">
         <div class="section-heading">
-          <div><p class="eyebrow">CURRENT CAMPAIGN</p><h2 id="weekLabel">This week</h2></div>
+          <div><p class="eyebrow">THIS WEEK</p><h2 id="weekLabel">This week</h2></div>
           <div id="weeklyPercent" class="percent-chip">0%</div>
         </div>
         <div class="weekly-grid">
-          <article class="metric-card"><span class="metric-label">Walk quests</span><strong><span id="walkCount">0</span>/5</strong><div class="mini-track"><div id="walkProgress" class="mini-fill"></div></div></article>
-          <article class="metric-card"><span class="metric-label">Strength bosses</span><strong><span id="strengthCount">0</span>/1</strong><div class="mini-track"><div id="strengthProgress" class="mini-fill"></div></div></article>
+          <article class="metric-card"><span class="metric-label">Walk days</span><strong id="walkCount">0/5</strong><div class="mini-track"><div id="walkProgress" class="mini-fill"></div></div></article>
+          <article class="metric-card"><span class="metric-label">Healthy meals</span><strong id="healthyCount">0/5</strong><div class="mini-track"><div id="healthyProgress" class="mini-fill"></div></div></article>
+          <article class="metric-card"><span class="metric-label">Delivery avoided</span><strong id="deliveryCount">0/4</strong><div class="mini-track"><div id="deliveryProgress" class="mini-fill"></div></div></article>
+          <article class="metric-card"><span class="metric-label">Strength</span><strong id="strengthCount">0/1</strong><div class="mini-track"><div id="strengthProgress" class="mini-fill"></div></div></article>
           <article class="metric-card"><span class="metric-label">Walking minutes</span><strong id="minutesCount">0</strong><span class="metric-sub">this week</span></article>
         </div>
       </section>
 
       <section>
-        <div class="section-heading outside-heading"><div><p class="eyebrow">TODAY'S QUESTS</p><h2 id="todayLabel">Today</h2></div></div>
+        <div class="section-heading outside-heading"><div><p class="eyebrow">DAILY QUEST BOARD</p><h2 id="todayLabel">Today</h2></div></div>
+        <div id="recoveryPanel" class="callout hidden">
+          <p class="eyebrow">WELCOME BACK</p><h3>Resume Campaign</h3>
+          <p>Your minimum goals are waiting exactly where you left them. Nothing was lost.</p>
+          <button id="resumeCampaignBtn" class="primary compact-button" type="button">Resume campaign</button>
+        </div>
         <div class="quest-stack">
           <article id="timerCard" class="quest-card timer-card panel">
             <div class="quest-icon" aria-hidden="true">&#9654;</div>
             <div class="quest-body">
-              <div class="quest-title-row"><h3>Walk Timer</h3><span class="reward">Automatic rewards</span></div>
+              <div class="quest-title-row"><h3>Timed Walk</h3><span class="reward">+10 first block &middot; +5 extra</span></div>
               <p id="timerStatus">Start the timer, take your walk, then stop it when you return. It keeps running if you lock your screen or close the app.</p>
               <div id="timerDisplay" class="timer-display" role="timer" aria-live="off">00:00</div>
               <p id="timerHint" class="timer-hint">First full 5 minutes today earns +10 XP and +10 coins.</p>
+              <span id="walkQuestStatus" class="quest-status">0 / 5 minutes today</span>
               <div class="timer-actions">
                 <button id="timerBtn" class="primary" type="button">Start walk</button>
                 <button id="discardWalkBtn" class="danger hidden" type="button">Discard</button>
               </div>
+              <button id="manualWalkBtn" class="text-button" type="button">Manually add 5 minutes</button>
             </div>
           </article>
-          <article class="quest-card panel">
-            <div class="quest-icon">5</div>
+          <article id="healthyCard" class="quest-card panel">
+            <div class="quest-icon bonus">M</div>
             <div class="quest-body">
-              <div class="quest-title-row"><h3>Minimum Movement</h3><span class="reward">+10 XP · +10</span></div>
-              <p>Walk for five minutes. One completion per day counts toward the weekly target.</p>
-              <button id="walkBtn" class="primary" type="button">Complete 5-minute walk</button>
+              <div class="quest-title-row"><h3>Healthy Meal</h3><span class="reward">+10 XP &middot; +10 coins</span></div>
+              <p>Charlie Meal or another meal you planned before hunger made the decision.</p>
+              <span id="healthyStatus" class="quest-status">Available today</span>
+              <button id="healthyBtn" class="primary" type="button">Complete healthy meal</button>
             </div>
           </article>
-          <article class="quest-card panel">
-            <div class="quest-icon bonus">+</div>
+          <article id="deliveryCard" class="quest-card panel">
+            <div class="quest-icon bonus">D</div>
             <div class="quest-body">
-              <div class="quest-title-row"><h3>Bonus Movement</h3><span class="reward">+5 XP · +5</span></div>
-              <p>Add another five walking minutes. Repeatable without a daily limit.</p>
-              <button id="bonusBtn" class="secondary full" type="button">Add 5 bonus minutes</button>
+              <div class="quest-title-row"><h3>No Impulse Delivery</h3><span class="reward">+10 XP &middot; +10 coins</span></div>
+              <p>At the end of the day, confirm that you avoided an unplanned delivery order.</p>
+              <span id="deliveryStatus" class="quest-status">Complete at the end of the day</span>
+              <button id="deliveryBtn" class="primary" type="button">No impulse delivery today</button>
             </div>
           </article>
-          <article class="quest-card panel">
+          <article id="strengthCard" class="quest-card panel">
             <div class="quest-icon boss">B</div>
             <div class="quest-body">
-              <div class="quest-title-row"><h3>Weekly Boss</h3><span class="reward">+25 XP · +25</span></div>
+              <div class="quest-title-row"><h3>Weekly Strength Boss</h3><span class="reward">+25 XP &middot; +25 coins</span></div>
               <p>One round: 6 chair stands, 6 counter push-ups, 6 band rows, 10 calf raises.</p>
+              <span id="strengthStatus" class="quest-status">0 / 1 sessions this week</span>
               <button id="strengthBtn" class="primary boss-button" type="button">Defeat strength boss</button>
             </div>
           </article>
         </div>
       </section>
 
+      <section class="panel">
+        <div class="section-heading"><div><p class="eyebrow">WEEKLY CHECKPOINT</p><h2>Weight trend</h2></div><div id="weightDueChip" class="percent-chip">Due</div></div>
+        <p class="panel-note">One weigh-in per week. XP rewards recording the data, never a particular result.</p>
+        <form id="weightForm" class="form-grid">
+          <label class="field">Current weight<input id="weightInput" type="number" min="1" max="1500" step="0.1" inputmode="decimal" required></label>
+          <label class="field">Unit<select id="weightUnit"><option value="lb">lb</option><option value="kg">kg</option></select></label>
+          <label class="field">Goal weight<input id="goalWeightInput" type="number" min="1" max="1500" step="0.1" inputmode="decimal" placeholder="Optional"></label>
+          <label class="field">Maintenance range low<input id="maintenanceLowInput" type="number" min="1" max="1500" step="0.1" inputmode="decimal" placeholder="Optional"></label>
+          <label class="field">Maintenance range high<input id="maintenanceHighInput" type="number" min="1" max="1500" step="0.1" inputmode="decimal" placeholder="Optional"></label>
+          <button id="recordWeightBtn" class="primary" type="submit">Record weekly weigh-in</button>
+          <button id="saveWeightSettingsBtn" class="secondary" type="button">Save goal and range</button>
+        </form>
+        <div class="stats-grid">
+          <div class="stat-card"><span>Starting</span><strong id="startingWeight">&mdash;</strong></div>
+          <div class="stat-card"><span>Current</span><strong id="currentWeight">&mdash;</strong></div>
+          <div class="stat-card"><span>Total change</span><strong id="totalWeightChange">&mdash;</strong></div>
+          <div class="stat-card"><span>Toward goal</span><strong id="weightGoalPercent">&mdash;</strong></div>
+          <div class="stat-card"><span>Estimated trajectory</span><strong id="weightTrajectory">Need more data</strong></div>
+        </div>
+        <div class="chart-wrap"><svg id="weightChart" class="weight-chart" viewBox="0 0 600 180" role="img" aria-label="Four-week weight trend"></svg></div>
+      </section>
+
+      <section class="panel">
+        <div class="section-heading"><div><p class="eyebrow">ADAPTIVE PROGRESSION</p><h2 id="adaptiveRankName">Couch Recruit</h2></div></div>
+        <p id="adaptiveTargets" class="panel-note">5-minute walks, 5 days/week &middot; 1 strength session/week</p>
+        <div class="stats-grid">
+          <div class="stat-card"><span>Two weeks ago</span><strong id="weekTwoPercent">&mdash;</strong></div>
+          <div class="stat-card"><span>Last week</span><strong id="weekOnePercent">&mdash;</strong></div>
+          <div class="stat-card wide"><span>Promotion status</span><strong id="promotionMessage">Complete 80% for two consecutive weeks</strong></div>
+        </div>
+        <button id="acceptPromotionBtn" class="primary hidden" type="button">Accept promotion</button>
+        <p class="panel-note">Promotions are optional. There are no automatic demotions or missed-day penalties.</p>
+      </section>
+
+      <section class="panel">
+        <div class="section-heading"><div><p class="eyebrow">FOUR-WEEK CAMPAIGN</p><h2 id="campaignLabel">Campaign 1</h2></div><div id="campaignPercent" class="percent-chip">0%</div></div>
+        <p><strong id="campaignTitle">Fresh Start</strong> <span id="campaignDates" class="muted"></span></p>
+        <div id="campaignProgress" class="progress-list"></div>
+        <div id="campaignStatus" class="callout"><p>Keep collecting small wins. A missed day never damages the campaign.</p></div>
+        <button id="campaignActionBtn" class="primary hidden" type="button">Start next campaign</button>
+      </section>
+
+      <section class="panel">
+        <div class="section-heading"><div><p class="eyebrow">WEEKLY RECAP</p><h2 id="recapLabel">This week so far</h2></div></div>
+        <div id="recapGrid" class="recap-grid"></div>
+        <p id="nextObjective" class="callout">Next week&rsquo;s primary objective: repeat the same target.</p>
+      </section>
+
+      <section class="panel">
+        <div class="section-heading"><div><p class="eyebrow">PERSONAL RECORDS</p><h2>Lifetime highlights</h2></div></div>
+        <div id="recordsGrid" class="records-grid"></div>
+      </section>
+
+      <section class="panel">
+        <div class="section-heading"><div><p class="eyebrow">REWARD SHOP</p><h2>Spend your coins</h2></div><div id="shopBalance" class="percent-chip">0 coins</div></div>
+        <p class="panel-note">Create rewards that make progress feel real. Entertainment and hobby rewards are encouraged; food does not need to be the default.</p>
+        <form id="rewardForm" class="form-grid">
+          <label class="field wide">Reward name<input id="rewardNameInput" maxlength="60" placeholder="Movie rental" required></label>
+          <label class="field">Coin cost<input id="rewardCostInput" type="number" min="1" max="100000" step="1" inputmode="numeric" required></label>
+          <label class="field">Category<select id="rewardCategoryInput"><option>Entertainment</option><option>Hobby</option><option>Planned treat</option><option>Other</option></select></label>
+          <button class="secondary wide" type="submit">Add reward</button>
+        </form>
+        <div id="shopList" class="shop-list"></div>
+      </section>
+
       <section class="panel trophies-panel">
-        <div class="section-heading"><div><p class="eyebrow">TROPHY CABINET</p><h2><span id="trophyCount">0</span>/8 unlocked</h2></div></div>
+        <div class="section-heading"><div><p class="eyebrow">TROPHY CABINET</p><h2><span id="trophyCount">0</span>/<span id="trophyTotal">13</span> unlocked</h2></div></div>
         <div id="trophyGrid" class="trophy-grid"></div>
       </section>
 
@@ -220,7 +345,7 @@ dialog::backdrop { background:rgba(0,0,0,.7); }
         </div>
       </section>
     </main>
-    <footer><p>No streak penalties. No missed-day damage. Total progress never expires. <span class="build">Build 3.0</span></p></footer>
+    <footer><p>No streak penalties. No missed-day damage. Total progress never expires. <span class="build">Build 4.0</span></p></footer>
   </div>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
@@ -241,12 +366,16 @@ dialog::backdrop { background:rgba(0,0,0,.7); }
   const STORAGE_KEY = "questlog-fitness-v1";
   const XP_PER_LEVEL = 100;
   const WALK_BLOCK_MS = 5 * 60 * 1000;
-  const BUILD = "3.0.0";
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  const BUILD = "4.0.0";
 
   const QUESTS = {
     walk: { title: "Minimum Movement", xp: 10, coins: 10, minutes: 5 },
     bonus: { title: "Bonus Movement", xp: 5, coins: 5, minutes: 5 },
-    strength: { title: "Weekly Boss", xp: 25, coins: 25, minutes: 0 }
+    healthyMeal: { title: "Healthy Meal", xp: 10, coins: 10, minutes: 0 },
+    noDelivery: { title: "No Impulse Delivery", xp: 10, coins: 10, minutes: 0 },
+    strength: { title: "Weekly Strength Boss", xp: 25, coins: 25, minutes: 0 },
+    weighIn: { title: "Weekly Weigh-in", xp: 10, coins: 10, minutes: 0 }
   };
 
   const TROPHIES = [
@@ -257,18 +386,32 @@ dialog::backdrop { background:rgba(0,0,0,.7); }
     { id:"silver-walker", name:"Silver Walker", description:"Complete 20 minimum walks.", test:s=>s.totals.walks>=20 },
     { id:"strength-online", name:"Strength Online", description:"Complete 4 strength circuits.", test:s=>s.totals.strength>=4 },
     { id:"distance-300", name:"No Longer Sedentary", description:"Accumulate 300 walking minutes.", test:s=>s.totals.walkMinutes>=300 },
-    { id:"month-one", name:"Month One Platinum", description:"Complete 20 minimum walks and 4 strength circuits.", test:s=>s.totals.walks>=20&&s.totals.strength>=4 }
+    { id:"month-one", name:"Month One Platinum", description:"Complete 20 minimum walks and 4 strength circuits.", test:s=>s.totals.walks>=20&&s.totals.strength>=4 },
+    { id:"baseline", name:"Baseline Established", description:"Record your first weekly weigh-in.", test:s=>s.weights.length>=1 },
+    { id:"data-collector", name:"Data Collector", description:"Record four weekly weigh-ins.", test:s=>s.weights.length>=4 },
+    { id:"first-weight-milestone", name:"First Milestone", description:"Lose 5 lb (or the equivalent in kg) from your starting weight.", test:s=>weightLost(s)>=5 },
+    { id:"five-percent", name:"Five Percent Campaign", description:"Lose 5% of your starting weight.", test:s=>weightLossPercent(s)>=5 },
+    { id:"maintenance", name:"Maintenance Mode", description:"Stay inside your selected range for eight weekly weigh-ins.", test:s=>isMaintaining(s) }
   ];
 
   const RANKS = [
-    [1,"Couch Recruit"], [3,"Routine Initiate"], [5,"Movement Adept"],
-    [8,"Consistency Hunter"], [12,"Habit Vanguard"], [20,"Platinum Operator"]
+    {name:"Couch Recruit",walkMinutes:5,walkDays:5,strength:1},
+    {name:"Routine Initiate",walkMinutes:10,walkDays:5,strength:1},
+    {name:"Movement Adept",walkMinutes:15,walkDays:5,strength:2},
+    {name:"Consistency Hunter",walkMinutes:20,walkDays:5,strength:2},
+    {name:"Habit Vanguard",walkMinutes:30,walkDays:5,strength:2}
   ];
 
+  const CAMPAIGN_TITLES = ["Fresh Start","Momentum Builder","Campaign Veteran","Steady Operator","Platinum Pathfinder"];
+
   const defaultState = () => ({
-    version:1, xp:0, coins:0, logs:[], unlocked:[],
-    totals:{ walks:0, bonusWalks:0, strength:0, walkMinutes:0 },
-    activeWalk:null
+    version:2, xp:0, coins:0, logs:[], unlocked:[], unlockedAt:{},
+    totals:{walks:0,bonusWalks:0,strength:0,walkMinutes:0,healthyMeals:0,noDelivery:0,weighIns:0,completedCampaigns:0,consecutiveCampaigns:0},
+    activeWalk:null, weights:[], shopRewards:[], lastActivityAt:null,
+    weightSettings:{unit:"lb",goal:null,maintenanceLow:null,maintenanceHigh:null},
+    progression:{rankIndex:0,rankStartedWeek:localDateKey(startOfWeek()),weekTargets:{}},
+    campaign:{number:1,startDate:localDateKey(startOfWeek()),goals:{walks:20,healthyMeals:20,noDelivery:16,strength:4,weighIns:4},completedAt:null,resumedAt:null},
+    campaignHistory:[]
   });
 
   const $ = id => document.getElementById(id);
@@ -308,13 +451,20 @@ dialog::backdrop { background:rgba(0,0,0,.7); }
   function loadState() {
     try {
       const parsed=JSON.parse(localStorage.getItem(STORAGE_KEY));
-      if(!parsed || parsed.version!==1) return defaultState();
+      if(!parsed || ![1,2].includes(parsed.version)) return defaultState();
       const base=defaultState();
       return {
-        ...base, ...parsed,
+        ...base, ...parsed, version:2,
         totals:{...base.totals,...(parsed.totals||{})},
         logs:Array.isArray(parsed.logs)?parsed.logs:[],
         unlocked:Array.isArray(parsed.unlocked)?parsed.unlocked:[],
+        unlockedAt:parsed.unlockedAt&&typeof parsed.unlockedAt==="object"?parsed.unlockedAt:{},
+        weights:Array.isArray(parsed.weights)?parsed.weights.filter(entry=>Number.isFinite(Number(entry.weight))):[],
+        shopRewards:Array.isArray(parsed.shopRewards)?parsed.shopRewards:[],
+        weightSettings:{...base.weightSettings,...(parsed.weightSettings||{})},
+        progression:{...base.progression,...(parsed.progression||{}),weekTargets:{...base.progression.weekTargets,...(parsed.progression?.weekTargets||{})}},
+        campaign:{...base.campaign,...(parsed.campaign||{}),goals:{...base.campaign.goals,...(parsed.campaign?.goals||{})}},
+        campaignHistory:Array.isArray(parsed.campaignHistory)?parsed.campaignHistory:[],
         activeWalk:parsed.activeWalk && Number.isFinite(new Date(parsed.activeWalk.startedAt).getTime())
           ? {startedAt:parsed.activeWalk.startedAt}
           : null
@@ -353,13 +503,66 @@ dialog::backdrop { background:rgba(0,0,0,.7); }
     return log.type==="bonus" ? 1 : 0;
   }
 
+  function logCoinDelta(log) {
+    const delta=Number(log.coinDelta!==undefined ? log.coinDelta : log.coins||0);
+    return Number.isFinite(delta) ? delta : 0;
+  }
+
+  function weightLost(source=state) {
+    if(source.weights.length<2) return 0;
+    const sorted=[...source.weights].sort((a,b)=>new Date(a.timestamp)-new Date(b.timestamp));
+    const loss=Number(sorted[0].weight)-Number(sorted.at(-1).weight);
+    return Math.max(0,source.weightSettings.unit==="kg" ? loss*2.2046226218 : loss);
+  }
+
+  function weightLossPercent(source=state) {
+    if(source.weights.length<2) return 0;
+    const sorted=[...source.weights].sort((a,b)=>new Date(a.timestamp)-new Date(b.timestamp));
+    const start=Number(sorted[0].weight);
+    return start>0 ? Math.max(0,((start-Number(sorted.at(-1).weight))/start)*100) : 0;
+  }
+
+  function isMaintaining(source=state) {
+    const low=Number(source.weightSettings.maintenanceLow);
+    const high=Number(source.weightSettings.maintenanceHigh);
+    if(!Number.isFinite(low)||!Number.isFinite(high)||low>high||source.weights.length<8) return false;
+    return [...source.weights].sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp)).slice(0,8)
+      .every(entry=>Number(entry.weight)>=low&&Number(entry.weight)<=high);
+  }
+
+  function markActivity() {
+    state.lastActivityAt=new Date().toISOString();
+  }
+
+  function hasDailyQuest(type,dateKey=localDateKey()) {
+    return state.logs.some(log=>log.type===type&&log.dateKey===dateKey);
+  }
+
+  function walkMinutesForDate(dateKey) {
+    return state.logs.filter(log=>log.dateKey===dateKey).reduce((sum,log)=>sum+(Number(log.minutes)||0),0);
+  }
+
+  function rankForWeek(date=new Date()) {
+    const key=localDateKey(startOfWeek(date));
+    let rankIndex=Number(state.progression.weekTargets[key]);
+    if(!Number.isInteger(rankIndex)) {
+      rankIndex=Math.max(0,Math.min(RANKS.length-1,Number(state.progression.rankIndex)||0));
+      state.progression.weekTargets[key]=rankIndex;
+    }
+    return RANKS[Math.max(0,Math.min(RANKS.length-1,rankIndex))];
+  }
+
   function hasCompletedWalkToday() {
     const today=localDateKey();
     return state.logs.some(log=>minimumWalkCredits(log)>0 && log.dateKey===today);
   }
 
+  function strengthCountThisWeek() {
+    return state.logs.filter(log=>log.type==="strength"&&isThisWeek(log.timestamp)).length;
+  }
+
   function hasCompletedStrengthThisWeek() {
-    return state.logs.some(log=>log.type==="strength" && isThisWeek(log.timestamp));
+    return strengthCountThisWeek()>=rankForWeek().strength;
   }
 
   function updateTrophies() {
@@ -367,6 +570,7 @@ dialog::backdrop { background:rgba(0,0,0,.7); }
     for(const trophy of TROPHIES) {
       if(trophy.test(state) && !state.unlocked.includes(trophy.id)) {
         state.unlocked.push(trophy.id);
+        state.unlockedAt[trophy.id]=new Date().toISOString();
         newly.push(trophy.name);
       }
     }
@@ -378,16 +582,20 @@ dialog::backdrop { background:rgba(0,0,0,.7); }
     if(!quest) return;
 
     if(type==="walk" && hasCompletedWalkToday()) {
-      showToast("Today's minimum walk is already complete. Use Bonus Movement for extra minutes.");
+      showToast("Today's first walk block is complete. Add a bonus block instead.");
+      return;
+    }
+    if((type==="healthyMeal"||type==="noDelivery")&&hasDailyQuest(type)) {
+      showToast(type==="healthyMeal" ? "Today's healthy meal is already recorded." : "Today's delivery quest is already complete.");
       return;
     }
     if(type==="strength" && hasCompletedStrengthThisWeek()) {
-      showToast("This week's strength boss is already defeated.");
+      showToast("This week's strength target is already complete.");
       return;
     }
 
     const log={
-      id:makeId(), type, title:quest.title, xp:quest.xp, coins:quest.coins,
+      id:makeId(), type, title:quest.title, xp:quest.xp, coins:quest.coins, coinDelta:quest.coins,
       minutes:quest.minutes, dateKey:localDateKey(), timestamp:new Date().toISOString(),
       minimumWalkCredits:type==="walk" ? 1 : 0,
       bonusWalkCredits:type==="bonus" ? 1 : 0
@@ -399,9 +607,13 @@ dialog::backdrop { background:rgba(0,0,0,.7); }
     state.totals.walks+=minimumWalkCredits(log);
     state.totals.bonusWalks+=bonusWalkCredits(log);
     if(type==="strength") state.totals.strength+=1;
+    if(type==="healthyMeal") state.totals.healthyMeals+=1;
+    if(type==="noDelivery") state.totals.noDelivery+=1;
     state.totals.walkMinutes+=quest.minutes;
+    markActivity();
 
     const newTrophies=updateTrophies();
+    refreshCampaignCompletion();
     saveState();
     render();
 
@@ -413,6 +625,7 @@ dialog::backdrop { background:rgba(0,0,0,.7); }
   function startWalk() {
     if(state.activeWalk) return;
     state.activeWalk={startedAt:new Date().toISOString()};
+    markActivity();
     saveState();
     renderWalkTimer();
     syncWalkTimerInterval();
@@ -434,7 +647,7 @@ dialog::backdrop { background:rgba(0,0,0,.7); }
     const coins=firstBlock*QUESTS.walk.coins+bonusBlocks*QUESTS.bonus.coins;
 
     const log={
-      id:makeId(), type:"timedWalk", title:"Timed Walk", xp, coins, minutes,
+      id:makeId(), type:"timedWalk", title:"Timed Walk", xp, coins, coinDelta:coins, minutes,
       durationSeconds:Math.floor(durationMs/1000),
       minimumWalkCredits:firstBlock, bonusWalkCredits:bonusBlocks,
       startedAt:startedAt.toISOString(), endedAt:endedAt.toISOString(),
@@ -448,8 +661,10 @@ dialog::backdrop { background:rgba(0,0,0,.7); }
     state.totals.walks+=firstBlock;
     state.totals.bonusWalks+=bonusBlocks;
     state.totals.walkMinutes+=minutes;
+    markActivity();
 
     const newTrophies=updateTrophies();
+    refreshCampaignCompletion();
     saveState();
     syncWalkTimerInterval();
     render();
@@ -476,25 +691,71 @@ dialog::backdrop { background:rgba(0,0,0,.7); }
     const index=state.logs.findIndex(log=>log.id===id);
     if(index<0) return;
     const [log]=state.logs.splice(index,1);
-    state.xp=Math.max(0,state.xp-log.xp);
-    state.coins=Math.max(0,state.coins-log.coins);
+    state.xp=Math.max(0,state.xp-(Number(log.xp)||0));
+    state.coins=Math.max(0,state.coins-logCoinDelta(log));
     state.totals.walks=Math.max(0,state.totals.walks-minimumWalkCredits(log));
     state.totals.bonusWalks=Math.max(0,state.totals.bonusWalks-bonusWalkCredits(log));
     if(log.type==="strength") state.totals.strength=Math.max(0,state.totals.strength-1);
+    if(log.type==="healthyMeal") state.totals.healthyMeals=Math.max(0,state.totals.healthyMeals-1);
+    if(log.type==="noDelivery") state.totals.noDelivery=Math.max(0,state.totals.noDelivery-1);
+    if(log.type==="weighIn") {
+      state.totals.weighIns=Math.max(0,state.totals.weighIns-1);
+      state.weights=state.weights.filter(entry=>entry.id!==log.weightId);
+    }
     state.totals.walkMinutes=Math.max(0,state.totals.walkMinutes-(log.minutes||0));
-    state.unlocked=TROPHIES.filter(trophy=>trophy.test(state)).map(trophy=>trophy.id);
+    const earnedCampaignIds=state.campaignHistory.filter(item=>item.completedAt).map(item=>`campaign-${item.number}`);
+    const validFixed=TROPHIES.filter(trophy=>trophy.test(state)).map(trophy=>trophy.id);
+    state.unlocked=[...new Set([...validFixed,...earnedCampaignIds])];
+    for(const trophy of TROPHIES) if(!validFixed.includes(trophy.id)) delete state.unlockedAt[trophy.id];
     saveState();
     render();
-    showToast("Completion removed.");
+    showToast(log.type==="shopSpend" ? "Reward purchase undone and coins restored." : "Activity removed.");
   }
 
-  function weeklyStats() {
-    const logs=state.logs.filter(log=>isThisWeek(log.timestamp));
+  function weeklyStats(weekStart=startOfWeek()) {
+    const start=startOfWeek(weekStart);
+    const end=new Date(start.getTime()+7*DAY_MS);
+    const logs=state.logs.filter(log=>{
+      const time=new Date(log.timestamp).getTime();
+      return time>=start.getTime()&&time<end.getTime();
+    });
+    const rank=rankForWeek(start);
+    const dailyMinutes={};
+    for(const log of logs) if(log.dateKey) dailyMinutes[log.dateKey]=(dailyMinutes[log.dateKey]||0)+(Number(log.minutes)||0);
+    const healthy=new Set(logs.filter(log=>log.type==="healthyMeal").map(log=>log.dateKey)).size;
+    const delivery=new Set(logs.filter(log=>log.type==="noDelivery").map(log=>log.dateKey)).size;
+    const strength=logs.filter(log=>log.type==="strength").length;
+    const weighIns=state.weights.filter(entry=>{
+      const time=new Date(entry.timestamp).getTime();
+      return time>=start.getTime()&&time<end.getTime();
+    }).length;
+    const walks=Object.values(dailyMinutes).filter(minutes=>minutes>=rank.walkMinutes).length;
+    const completed=Math.min(walks,rank.walkDays)+Math.min(healthy,5)+Math.min(delivery,4)+Math.min(strength,rank.strength)+Math.min(weighIns,1);
+    const target=rank.walkDays+5+4+rank.strength+1;
+    const unlocked=Object.values(state.unlockedAt).filter(timestamp=>{
+      const time=new Date(timestamp).getTime();
+      return time>=start.getTime()&&time<end.getTime();
+    }).length;
     return {
-      walks:logs.reduce((sum,log)=>sum+minimumWalkCredits(log),0),
-      strength:logs.filter(log=>log.type==="strength").length,
-      minutes:logs.reduce((sum,log)=>sum+(log.minutes||0),0)
+      walks,healthy,delivery,strength,weighIns,rank,
+      minutes:logs.reduce((sum,log)=>sum+(Number(log.minutes)||0),0),
+      longestWalk:Math.max(0,...logs.filter(log=>["walk","bonus","timedWalk"].includes(log.type)).map(log=>Number(log.minutes)||0)),
+      xp:logs.reduce((sum,log)=>sum+Math.max(0,Number(log.xp)||0),0),
+      trophies:unlocked,
+      percent:target ? Math.round((completed/target)*100) : 0,
+      start,end
     };
+  }
+
+  function promotionInfo() {
+    const oneWeekAgo=new Date(startOfWeek().getTime()-7*DAY_MS);
+    const twoWeeksAgo=new Date(startOfWeek().getTime()-14*DAY_MS);
+    const older=weeklyStats(twoWeeksAgo);
+    const recent=weeklyStats(oneWeekAgo);
+    const rankStarted=new Date(`${state.progression.rankStartedWeek}T00:00:00`);
+    const enoughRankTime=twoWeeksAgo.getTime()>=startOfWeek(rankStarted).getTime();
+    const eligible=enoughRankTime&&older.percent>=80&&recent.percent>=80&&state.progression.rankIndex<RANKS.length-1;
+    return {older,recent,eligible};
   }
 
   function formatElapsed(milliseconds) {
@@ -550,6 +811,169 @@ dialog::backdrop { background:rgba(0,0,0,.7); }
     if(state.activeWalk) walkTimerInterval=setInterval(renderWalkTimer,1000);
   }
 
+  function campaignWindow() {
+    const [year,month,day]=state.campaign.startDate.split("-").map(Number);
+    const start=new Date(year,month-1,day);
+    start.setHours(0,0,0,0);
+    return {start,end:new Date(start.getTime()+28*DAY_MS)};
+  }
+
+  function campaignStats() {
+    const {start,end}=campaignWindow();
+    const logs=state.logs.filter(log=>{
+      const time=new Date(log.timestamp).getTime();
+      return time>=start.getTime()&&time<end.getTime();
+    });
+    const dailyMinutes={};
+    for(const log of logs) if(log.dateKey) dailyMinutes[log.dateKey]=(dailyMinutes[log.dateKey]||0)+(Number(log.minutes)||0);
+    const values={
+      walks:Object.values(dailyMinutes).filter(minutes=>minutes>=5).length,
+      healthyMeals:new Set(logs.filter(log=>log.type==="healthyMeal").map(log=>log.dateKey)).size,
+      noDelivery:new Set(logs.filter(log=>log.type==="noDelivery").map(log=>log.dateKey)).size,
+      strength:logs.filter(log=>log.type==="strength").length,
+      weighIns:state.weights.filter(entry=>{
+        const time=new Date(entry.timestamp).getTime();
+        return time>=start.getTime()&&time<end.getTime();
+      }).length
+    };
+    const keys=Object.keys(state.campaign.goals);
+    const completed=keys.reduce((sum,key)=>sum+Math.min(values[key]||0,state.campaign.goals[key]),0);
+    const total=keys.reduce((sum,key)=>sum+state.campaign.goals[key],0);
+    return {...values,percent:total?Math.round((completed/total)*100):0,complete:keys.every(key=>values[key]>=state.campaign.goals[key]),start,end};
+  }
+
+  function refreshCampaignCompletion() {
+    if(state.campaign.completedAt) return [];
+    const stats=campaignStats();
+    if(!stats.complete) return [];
+    const completedAt=new Date().toISOString();
+    state.campaign.completedAt=completedAt;
+    const snapshot=JSON.parse(JSON.stringify({...state.campaign,completedAt}));
+    state.campaignHistory.push(snapshot);
+    state.totals.completedCampaigns+=1;
+    state.totals.consecutiveCampaigns+=1;
+    const id=`campaign-${state.campaign.number}`;
+    if(!state.unlocked.includes(id)) state.unlocked.push(id);
+    state.unlockedAt[id]=completedAt;
+    return [`Campaign ${state.campaign.number} Complete`];
+  }
+
+  function startNextCampaign() {
+    const wasComplete=Boolean(state.campaign.completedAt);
+    if(!wasComplete) state.totals.consecutiveCampaigns=0;
+    state.campaign={
+      number:wasComplete ? state.campaign.number+1 : state.campaign.number,
+      startDate:localDateKey(), goals:{...state.campaign.goals}, completedAt:null, resumedAt:new Date().toISOString()
+    };
+    markActivity();
+    saveState();
+    render();
+    showToast(wasComplete ? "New four-week campaign started with the same targets." : "Campaign resumed with the same minimum goals.");
+  }
+
+  function resumeCampaign() {
+    const stats=campaignStats();
+    if(!state.campaign.completedAt&&Date.now()>=stats.end.getTime()) {
+      startNextCampaign();
+      return;
+    }
+    state.campaign.resumedAt=new Date().toISOString();
+    markActivity();
+    saveState();
+    render();
+    showToast("Campaign resumed. Your goals have not changed.");
+  }
+
+  function acceptPromotion() {
+    const info=promotionInfo();
+    if(!info.eligible) return;
+    state.progression.rankIndex=Math.min(RANKS.length-1,state.progression.rankIndex+1);
+    const currentWeek=localDateKey(startOfWeek());
+    state.progression.rankStartedWeek=currentWeek;
+    state.progression.weekTargets[currentWeek]=state.progression.rankIndex;
+    saveState();
+    render();
+    showToast(`Promotion accepted: ${RANKS[state.progression.rankIndex].name}. No earlier progress was changed.`);
+  }
+
+  function readWeightSettings() {
+    if(!state.weights.length) state.weightSettings.unit=$("weightUnit").value;
+    const optionalNumber=id=>{
+      const value=Number($(id).value);
+      return Number.isFinite(value)&&value>0 ? value : null;
+    };
+    state.weightSettings.goal=optionalNumber("goalWeightInput");
+    state.weightSettings.maintenanceLow=optionalNumber("maintenanceLowInput");
+    state.weightSettings.maintenanceHigh=optionalNumber("maintenanceHighInput");
+    if(state.weightSettings.maintenanceLow&&state.weightSettings.maintenanceHigh&&state.weightSettings.maintenanceLow>state.weightSettings.maintenanceHigh) {
+      showToast("Maintenance range low must be below the high value.");
+      return false;
+    }
+    return true;
+  }
+
+  function saveWeightSettings() {
+    if(!readWeightSettings()) return;
+    saveState();
+    renderWeight();
+    showToast("Weight goal and maintenance range saved.");
+  }
+
+  function recordWeight(event) {
+    event.preventDefault();
+    if(state.weights.some(entry=>isThisWeek(entry.timestamp))) {
+      showToast("This week's weigh-in is already recorded.");
+      return;
+    }
+    const weight=Number($("weightInput").value);
+    if(!Number.isFinite(weight)||weight<=0||!readWeightSettings()) return;
+    const now=new Date();
+    const weightId=makeId();
+    state.weights.push({id:weightId,weight,dateKey:localDateKey(now),timestamp:now.toISOString()});
+    const quest=QUESTS.weighIn;
+    state.logs.unshift({id:makeId(),type:"weighIn",title:quest.title,xp:quest.xp,coins:quest.coins,coinDelta:quest.coins,minutes:0,weightId,dateKey:localDateKey(now),timestamp:now.toISOString()});
+    state.xp+=quest.xp;
+    state.coins+=quest.coins;
+    state.totals.weighIns+=1;
+    markActivity();
+    const trophies=updateTrophies();
+    refreshCampaignCompletion();
+    saveState();
+    render();
+    showToast(`Weekly weigh-in recorded: +${quest.xp} XP, +${quest.coins} coins.${trophies.length?` Trophy unlocked: ${trophies.join(", ")}.`:""}`);
+  }
+
+  function addShopReward(event) {
+    event.preventDefault();
+    const name=$("rewardNameInput").value.trim();
+    const cost=Math.floor(Number($("rewardCostInput").value));
+    const category=$("rewardCategoryInput").value;
+    if(!name||!Number.isFinite(cost)||cost<1) return;
+    state.shopRewards.push({id:makeId(),name,cost,category,createdAt:new Date().toISOString()});
+    saveState();
+    $("rewardForm").reset();
+    renderShop();
+    showToast("Reward added to your shop.");
+  }
+
+  function spendReward(id) {
+    const reward=state.shopRewards.find(item=>item.id===id);
+    if(!reward||state.coins<reward.cost) return;
+    state.coins-=reward.cost;
+    const now=new Date();
+    state.logs.unshift({id:makeId(),type:"shopSpend",title:`Reward: ${reward.name}`,xp:0,coins:-reward.cost,coinDelta:-reward.cost,minutes:0,dateKey:localDateKey(now),timestamp:now.toISOString()});
+    markActivity();
+    saveState();
+    render();
+    showToast(`${reward.name} purchased for ${reward.cost} coins.`);
+  }
+
+  function removeShopReward(id) {
+    state.shopRewards=state.shopRewards.filter(item=>item.id!==id);
+    saveState();
+    renderShop();
+  }
+
   function shortDate(date) {
     return new Intl.DateTimeFormat(undefined,{month:"short",day:"numeric"}).format(date);
   }
@@ -565,12 +989,6 @@ dialog::backdrop { background:rgba(0,0,0,.7); }
     return `${label} · ${time}`;
   }
 
-  function rankFor(level) {
-    let rank=RANKS[0][1];
-    for(const [minimum,name] of RANKS) if(level>=minimum) rank=name;
-    return rank;
-  }
-
   function escapeHtml(value) {
     return String(value).replace(/[&<>"']/g,char=>({
       "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
@@ -581,44 +999,241 @@ dialog::backdrop { background:rgba(0,0,0,.7); }
     const level=Math.floor(state.xp/XP_PER_LEVEL)+1;
     const xpInLevel=state.xp%XP_PER_LEVEL;
     const weekly=weeklyStats();
-    const weeklyObjectives=Math.min(weekly.walks,5)+Math.min(weekly.strength,1);
-    const weeklyPercent=Math.round((weeklyObjectives/6)*100);
+    const adaptiveRank=RANKS[state.progression.rankIndex];
 
     $("levelValue").textContent=level;
     $("xpLabel").textContent=`${xpInLevel} / ${XP_PER_LEVEL} XP`;
     $("coinLabel").textContent=`${state.coins} coins`;
     $("xpProgress").style.width=`${xpInLevel}%`;
-    $("rankText").textContent=`Rank: ${rankFor(level)}`;
+    $("rankText").textContent=`Rank: ${adaptiveRank.name} · ${CAMPAIGN_TITLES[Math.min(CAMPAIGN_TITLES.length-1,state.totals.completedCampaigns)]}`;
 
     $("weekLabel").textContent=`${shortDate(startOfWeek())}–${shortDate(endOfWeek())}`;
-    $("weeklyPercent").textContent=`${weeklyPercent}%`;
-    $("walkCount").textContent=weekly.walks;
-    $("strengthCount").textContent=weekly.strength;
+    $("weeklyPercent").textContent=`${weekly.percent}%`;
+    $("walkCount").textContent=`${weekly.walks}/${weekly.rank.walkDays}`;
+    $("healthyCount").textContent=`${weekly.healthy}/5`;
+    $("deliveryCount").textContent=`${weekly.delivery}/4`;
+    $("strengthCount").textContent=`${weekly.strength}/${weekly.rank.strength}`;
     $("minutesCount").textContent=weekly.minutes;
-    $("walkProgress").style.width=`${Math.min(100,(weekly.walks/5)*100)}%`;
-    $("strengthProgress").style.width=`${Math.min(100,weekly.strength*100)}%`;
+    $("walkProgress").style.width=`${Math.min(100,(weekly.walks/weekly.rank.walkDays)*100)}%`;
+    $("healthyProgress").style.width=`${Math.min(100,(weekly.healthy/5)*100)}%`;
+    $("deliveryProgress").style.width=`${Math.min(100,(weekly.delivery/4)*100)}%`;
+    $("strengthProgress").style.width=`${Math.min(100,(weekly.strength/weekly.rank.strength)*100)}%`;
 
     $("todayLabel").textContent=new Intl.DateTimeFormat(undefined,{
       weekday:"long",month:"long",day:"numeric"
     }).format(new Date());
 
-    const walkDone=hasCompletedWalkToday();
-    $("walkBtn").disabled=walkDone;
-    $("walkBtn").textContent=walkDone ? "Completed today" : "Complete 5-minute walk";
+    const todayMinutes=walkMinutesForDate(localDateKey());
+    const walkDone=todayMinutes>=weekly.rank.walkMinutes;
+    $("walkQuestStatus").textContent=`${todayMinutes} / ${weekly.rank.walkMinutes} minutes today${walkDone?" · quest complete":""}`;
+    $("timerCard").classList.toggle("completed",walkDone);
+
+    const healthyDone=hasDailyQuest("healthyMeal");
+    $("healthyBtn").disabled=healthyDone;
+    $("healthyBtn").textContent=healthyDone ? "Healthy meal recorded" : "Complete healthy meal";
+    $("healthyStatus").textContent=healthyDone ? "Complete today" : "Available today";
+    $("healthyCard").classList.toggle("completed",healthyDone);
+
+    const deliveryDone=hasDailyQuest("noDelivery");
+    $("deliveryBtn").disabled=deliveryDone;
+    $("deliveryBtn").textContent=deliveryDone ? "Delivery quest complete" : "No impulse delivery today";
+    $("deliveryStatus").textContent=deliveryDone ? "Complete today" : "Complete at the end of the day";
+    $("deliveryCard").classList.toggle("completed",deliveryDone);
 
     const strengthDone=hasCompletedStrengthThisWeek();
     $("strengthBtn").disabled=strengthDone;
-    $("strengthBtn").textContent=strengthDone ? "Boss defeated this week" : "Defeat strength boss";
+    $("strengthBtn").textContent=strengthDone ? "Weekly target complete" : "Defeat strength boss";
+    $("strengthStatus").textContent=`${strengthCountThisWeek()} / ${weekly.rank.strength} sessions this week`;
+    $("strengthCard").classList.toggle("completed",strengthDone);
 
     renderWalkTimer();
+    renderWeight();
+    renderProgression();
+    renderCampaign();
+    renderRecap();
+    renderRecords();
+    renderShop();
+    renderRecovery();
     renderTrophies();
     renderHistory();
   }
 
+  function renderWeight() {
+    const sorted=[...state.weights].sort((a,b)=>new Date(a.timestamp)-new Date(b.timestamp));
+    const unit=state.weightSettings.unit;
+    const format=value=>`${Number(value).toFixed(1)} ${unit}`;
+    const done=sorted.some(entry=>isThisWeek(entry.timestamp));
+    $("weightDueChip").textContent=done?"Recorded":"Due";
+    $("recordWeightBtn").disabled=done;
+    $("recordWeightBtn").textContent=done?"Recorded this week":"Record weekly weigh-in";
+    $("weightInput").disabled=done;
+    $("weightUnit").value=unit;
+    $("weightUnit").disabled=sorted.length>0;
+    $("goalWeightInput").value=state.weightSettings.goal??"";
+    $("maintenanceLowInput").value=state.weightSettings.maintenanceLow??"";
+    $("maintenanceHighInput").value=state.weightSettings.maintenanceHigh??"";
+
+    if(!sorted.length) {
+      $("startingWeight").textContent="—";
+      $("currentWeight").textContent="—";
+      $("totalWeightChange").textContent="—";
+      $("weightGoalPercent").textContent="—";
+      $("weightTrajectory").textContent="Need more data";
+      $("weightChart").innerHTML='<text x="300" y="92" text-anchor="middle" class="chart-label">Record a baseline to begin the four-week trend</text>';
+      return;
+    }
+
+    const start=Number(sorted[0].weight);
+    const current=Number(sorted.at(-1).weight);
+    const change=current-start;
+    $("startingWeight").textContent=format(start);
+    $("currentWeight").textContent=format(current);
+    $("totalWeightChange").textContent=`${change>0?"+":""}${change.toFixed(1)} ${unit}`;
+    const goal=Number(state.weightSettings.goal);
+    if(Number.isFinite(goal)&&goal>0&&start!==goal) {
+      const percent=Math.max(0,Math.min(100,((start-current)/(start-goal))*100));
+      $("weightGoalPercent").textContent=`${Math.round(percent)}%`;
+    } else $("weightGoalPercent").textContent="Set a goal";
+
+    let trajectory="Need 2+ weekly entries";
+    if(sorted.length>=2&&Number.isFinite(goal)&&goal>0) {
+      const first=sorted[0];
+      const last=sorted.at(-1);
+      const elapsedWeeks=(new Date(last.timestamp)-new Date(first.timestamp))/(7*DAY_MS);
+      const rate=elapsedWeeks>0?(Number(last.weight)-Number(first.weight))/elapsedWeeks:0;
+      const remainingWeeks=rate!==0?(goal-current)/rate:-1;
+      if(remainingWeeks>0&&remainingWeeks<520) {
+        const estimated=new Date(new Date(last.timestamp).getTime()+remainingWeeks*7*DAY_MS);
+        trajectory=`Estimate: ${new Intl.DateTimeFormat(undefined,{month:"short",year:"numeric"}).format(estimated)}`;
+      } else trajectory="Estimate unavailable";
+    }
+    $("weightTrajectory").textContent=trajectory;
+
+    const recent=sorted.filter(entry=>Date.now()-new Date(entry.timestamp).getTime()<=28*DAY_MS);
+    const points=(recent.length?recent:sorted.slice(-1)).slice(-4);
+    let min=Math.min(...points.map(entry=>Number(entry.weight)));
+    let max=Math.max(...points.map(entry=>Number(entry.weight)));
+    if(min===max){min-=1;max+=1;}
+    const coordinates=points.map((entry,index)=>{
+      const x=points.length===1?300:35+(index/(points.length-1))*530;
+      const y=25+((max-Number(entry.weight))/(max-min))*115;
+      return {x,y,entry};
+    });
+    const line=coordinates.map(point=>`${point.x},${point.y}`).join(" ");
+    const area=coordinates.length>1?`M ${coordinates[0].x} 145 L ${line.replaceAll(" "," L ")} L ${coordinates.at(-1).x} 145 Z`:"";
+    $("weightChart").innerHTML=`<defs><linearGradient id="weightGradient" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#38bdf8" stop-opacity=".28"/><stop offset="1" stop-color="#38bdf8" stop-opacity="0"/></linearGradient></defs>
+      ${area?`<path class="chart-area" d="${area}"/>`:""}<polyline class="chart-line" points="${line}"/>
+      ${coordinates.map(point=>`<circle class="chart-dot" cx="${point.x}" cy="${point.y}" r="5"/><text class="chart-label" x="${point.x}" y="165" text-anchor="middle">${shortDate(new Date(point.entry.timestamp))}</text><text class="chart-label" x="${point.x}" y="${point.y-10}" text-anchor="middle">${Number(point.entry.weight).toFixed(1)}</text>`).join("")}`;
+  }
+
+  function renderProgression() {
+    const rank=RANKS[state.progression.rankIndex];
+    const info=promotionInfo();
+    $("adaptiveRankName").textContent=rank.name;
+    $("adaptiveTargets").textContent=`${rank.walkMinutes}-minute walks, ${rank.walkDays} days/week · ${rank.strength} strength ${rank.strength===1?"session":"sessions"}/week`;
+    $("weekTwoPercent").textContent=`${info.older.percent}%`;
+    $("weekOnePercent").textContent=`${info.recent.percent}%`;
+    const atTop=state.progression.rankIndex===RANKS.length-1;
+    $("promotionMessage").textContent=atTop?"Highest rank reached":info.eligible?`Eligible for ${RANKS[state.progression.rankIndex+1].name}`:"Complete at least 80% for two consecutive weeks";
+    $("acceptPromotionBtn").classList.toggle("hidden",!info.eligible);
+    if(info.eligible) $("acceptPromotionBtn").textContent=`Accept promotion to ${RANKS[state.progression.rankIndex+1].name}`;
+  }
+
+  function renderCampaign() {
+    const stats=campaignStats();
+    const goals=state.campaign.goals;
+    const items=[
+      ["walks","Walk quests"],["healthyMeals","Healthy meals"],["noDelivery","No-delivery days"],["strength","Strength bosses"],["weighIns","Weigh-ins"]
+    ];
+    $("campaignLabel").textContent=`Campaign ${state.campaign.number}`;
+    $("campaignTitle").textContent=CAMPAIGN_TITLES[Math.min(CAMPAIGN_TITLES.length-1,state.totals.completedCampaigns)];
+    $("campaignDates").textContent=`· ${shortDate(stats.start)}–${shortDate(new Date(stats.end.getTime()-DAY_MS))}`;
+    $("campaignPercent").textContent=`${stats.percent}%`;
+    $("campaignProgress").innerHTML=items.map(([key,label])=>`<div class="progress-row"><span>${label}</span><div class="campaign-track"><div class="campaign-fill" style="width:${Math.min(100,(stats[key]/goals[key])*100)}%"></div></div><strong>${stats[key]}/${goals[key]}</strong></div>`).join("");
+    const action=$("campaignActionBtn");
+    action.classList.add("hidden");
+    if(state.campaign.completedAt) {
+      $("campaignStatus").className="callout success";
+      $("campaignStatus").innerHTML=`<p><strong>Campaign complete.</strong> Trophy and cosmetic title unlocked.</p>`;
+      action.textContent="Start next campaign";
+      action.classList.remove("hidden");
+    } else if(Date.now()>=stats.end.getTime()) {
+      $("campaignStatus").className="callout";
+      $("campaignStatus").innerHTML="<p>Resume with the same minimum goals whenever you are ready.</p>";
+      action.textContent="Resume campaign";
+      action.classList.remove("hidden");
+    } else {
+      $("campaignStatus").className="callout";
+      $("campaignStatus").innerHTML="<p>Keep collecting small wins. A missed day never damages the campaign.</p>";
+    }
+  }
+
+  function weeklyWeightTrend(weekly) {
+    const sorted=[...state.weights].sort((a,b)=>new Date(a.timestamp)-new Date(b.timestamp));
+    const current=sorted.filter(entry=>new Date(entry.timestamp)>=weekly.start&&new Date(entry.timestamp)<weekly.end).at(-1);
+    if(!current) return "No entry";
+    const previous=sorted.filter(entry=>new Date(entry.timestamp)<new Date(current.timestamp)).at(-1);
+    if(!previous) return "Baseline";
+    const change=Number(current.weight)-Number(previous.weight);
+    return `${change>0?"+":""}${change.toFixed(1)} ${state.weightSettings.unit}`;
+  }
+
+  function renderRecap() {
+    const weekly=weeklyStats();
+    $("recapLabel").textContent=new Date().getDay()===0?"Sunday recap":"This week so far";
+    const items=[
+      ["Walks",weekly.walks],["Walking minutes",weekly.minutes],["Longest walk",`${weekly.longestWalk} min`],["Healthy meals",weekly.healthy],
+      ["Delivery avoided",weekly.delivery],["Strength",weekly.strength],["Weight trend",weeklyWeightTrend(weekly)],["XP earned",weekly.xp],["Trophies",weekly.trophies]
+    ];
+    $("recapGrid").innerHTML=items.map(([label,value])=>`<div class="recap-item"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></div>`).join("");
+    $("nextObjective").textContent=promotionInfo().eligible
+      ? "Next week’s primary objective: promotion is available when you choose to accept it."
+      : "Next week’s primary objective: repeat the same target.";
+  }
+
+  function renderRecords() {
+    const weekly={};
+    for(const log of state.logs) {
+      const key=localDateKey(startOfWeek(new Date(log.timestamp)));
+      weekly[key]||={minutes:0,healthy:0,healthyDays:new Set()};
+      weekly[key].minutes+=Number(log.minutes)||0;
+      if(log.type==="healthyMeal") weekly[key].healthyDays.add(log.dateKey);
+    }
+    const longest=Math.max(0,...state.logs.filter(log=>["walk","bonus","timedWalk"].includes(log.type)).map(log=>Number(log.minutes)||0));
+    const mostMinutes=Math.max(0,...Object.values(weekly).map(item=>item.minutes));
+    const mostMeals=Math.max(0,...Object.values(weekly).map(item=>item.healthyDays.size));
+    const items=[
+      ["Longest walk",`${longest} min`],["Best walking week",`${mostMinutes} min`],["Best healthy-meal week",mostMeals],
+      ["Consecutive campaigns",state.totals.consecutiveCampaigns],["Lifetime walking",`${state.totals.walkMinutes} min`],["Strength sessions",state.totals.strength]
+    ];
+    $("recordsGrid").innerHTML=items.map(([label,value])=>`<div class="record-item"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></div>`).join("");
+  }
+
+  function renderShop() {
+    $("shopBalance").textContent=`${state.coins} coins`;
+    const list=$("shopList");
+    if(!state.shopRewards.length) {
+      list.innerHTML='<div class="empty-state">Add a movie, game, hobby purchase, or guilt-free gaming evening.</div>';
+      return;
+    }
+    list.innerHTML=state.shopRewards.map(reward=>`<div class="shop-item"><div><div class="shop-item-title">${escapeHtml(reward.name)}</div><div class="shop-item-meta">${escapeHtml(reward.category)}</div></div><span class="coin-cost">${reward.cost} coins</span><div><button class="primary compact-button" data-spend="${escapeHtml(reward.id)}" ${state.coins<reward.cost?"disabled":""}>Spend</button><button class="text-button" data-remove-reward="${escapeHtml(reward.id)}">Remove</button></div></div>`).join("");
+    list.querySelectorAll("[data-spend]").forEach(button=>button.addEventListener("click",()=>spendReward(button.dataset.spend)));
+    list.querySelectorAll("[data-remove-reward]").forEach(button=>button.addEventListener("click",()=>removeShopReward(button.dataset.removeReward)));
+  }
+
+  function renderRecovery() {
+    const latest=state.lastActivityAt||state.logs[0]?.timestamp;
+    const inactive=latest&&!state.activeWalk&&(Date.now()-new Date(latest).getTime()>=3*DAY_MS);
+    $("recoveryPanel").classList.toggle("hidden",!inactive);
+  }
+
   function renderTrophies() {
-    const unlockedCount=TROPHIES.filter(t=>state.unlocked.includes(t.id)).length;
+    const campaignTrophies=state.campaignHistory.filter(item=>item.completedAt).map(item=>({id:`campaign-${item.number}`,name:`Campaign ${item.number} Complete`,description:"Completed every objective in a four-week campaign."}));
+    const allTrophies=[...TROPHIES,...campaignTrophies];
+    const unlockedCount=allTrophies.filter(t=>state.unlocked.includes(t.id)).length;
     $("trophyCount").textContent=unlockedCount;
-    $("trophyGrid").innerHTML=TROPHIES.map((trophy,index)=>{
+    $("trophyTotal").textContent=allTrophies.length;
+    $("trophyGrid").innerHTML=allTrophies.map((trophy,index)=>{
       const unlocked=state.unlocked.includes(trophy.id);
       return `<article class="trophy ${unlocked?"unlocked":""}">
         <span class="trophy-status">${unlocked?"Unlocked":"Locked"}</span>
@@ -639,7 +1254,7 @@ dialog::backdrop { background:rgba(0,0,0,.7); }
     list.innerHTML=recent.map(log=>`<div class="history-item">
       <div><div class="history-title">${escapeHtml(log.title)}</div>
       <div class="history-meta">${escapeHtml(historyDate(log.timestamp))}${log.type==="timedWalk" ? ` · ${log.minutes||0} min` : ""}</div></div>
-      <div class="history-reward">${log.xp>0 ? `+${log.xp} XP` : "No XP"}</div>
+      <div class="history-reward">${log.type==="shopSpend" ? `−${Math.abs(logCoinDelta(log))} coins` : log.xp>0 ? `+${log.xp} XP` : "No XP"}</div>
       <button class="undo-btn" type="button" data-undo="${escapeHtml(log.id)}">Undo</button>
     </div>`).join("");
     list.querySelectorAll("[data-undo]").forEach(button=>{
@@ -674,15 +1289,11 @@ dialog::backdrop { background:rgba(0,0,0,.7); }
     try {
       const parsed=JSON.parse(await file.text());
       const incoming=parsed.state||parsed;
-      if(!incoming || incoming.version!==1 || !Array.isArray(incoming.logs)) throw new Error("Invalid backup");
-      const base=defaultState();
-      state={
-        ...base,...incoming,
-        totals:{...base.totals,...(incoming.totals||{})},
-        logs:incoming.logs,
-        unlocked:Array.isArray(incoming.unlocked)?incoming.unlocked:[]
-      };
+      if(!incoming || ![1,2].includes(incoming.version) || !Array.isArray(incoming.logs)) throw new Error("Invalid backup");
+      localStorage.setItem(STORAGE_KEY,JSON.stringify(incoming));
+      state=loadState();
       updateTrophies();
+      refreshCampaignCompletion();
       saveState();
       syncWalkTimerInterval();
       render();
@@ -712,9 +1323,16 @@ dialog::backdrop { background:rgba(0,0,0,.7); }
   function bindEvents() {
     $("timerBtn").addEventListener("click",()=>state.activeWalk ? stopWalk() : startWalk());
     $("discardWalkBtn").addEventListener("click",discardWalk);
-    $("walkBtn").addEventListener("click",()=>addQuest("walk"));
-    $("bonusBtn").addEventListener("click",()=>addQuest("bonus"));
+    $("manualWalkBtn").addEventListener("click",()=>addQuest(hasCompletedWalkToday()?"bonus":"walk"));
+    $("healthyBtn").addEventListener("click",()=>addQuest("healthyMeal"));
+    $("deliveryBtn").addEventListener("click",()=>addQuest("noDelivery"));
     $("strengthBtn").addEventListener("click",()=>addQuest("strength"));
+    $("weightForm").addEventListener("submit",recordWeight);
+    $("saveWeightSettingsBtn").addEventListener("click",saveWeightSettings);
+    $("rewardForm").addEventListener("submit",addShopReward);
+    $("acceptPromotionBtn").addEventListener("click",acceptPromotion);
+    $("campaignActionBtn").addEventListener("click",startNextCampaign);
+    $("resumeCampaignBtn").addEventListener("click",resumeCampaign);
     $("exportBtn").addEventListener("click",exportBackup);
     $("importInput").addEventListener("change",event=>{
       const file=event.target.files && event.target.files[0];
@@ -761,6 +1379,7 @@ dialog::backdrop { background:rgba(0,0,0,.7); }
   function start() {
     bindEvents();
     updateTrophies();
+    refreshCampaignCompletion();
     saveState();
     render();
     syncWalkTimerInterval();
